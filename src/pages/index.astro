@@ -42,7 +42,7 @@ const footprints = Array.from({ length: 34 }, (_, i) => {
     <div class="shell site-header__inner">
       <a class="monogram" href="#top">LH — applied ai</a>
       <nav class="site-nav" aria-label="Primary">
-        <a href="#work">Work</a>
+        <a href="#work">Repos</a>
         <a href="#path">Path</a>
         <a href="#videos">Videos</a>
         <a href="#downloads">Guides</a>
@@ -109,7 +109,7 @@ const footprints = Array.from({ length: 34 }, (_, i) => {
         <section class="section" id="work">
           <div class="section__head">
             <span class="section__index">02</span>
-            <h2 class="section__title">Selected work</h2>
+            <h2 class="section__title">Public repos</h2>
             <p class="section__note">
               Two public builds you can read today. Both are places where a model has to
               work with constraints, tools, and someone else in the loop.
@@ -323,28 +323,73 @@ const footprints = Array.from({ length: 34 }, (_, i) => {
           <h2 class="contact__title display">Contact</h2>
           <p class="contact__lede">For conversations about applied AI, education, and health.</p>
 
-          <a class="contact__email" href={`mailto:${site.email}`}>
-            {site.email}<span aria-hidden="true">↗</span>
-          </a>
+          <div class="contact-cards" data-contact-cards>
+            <svg class="contact-net" data-contact-net aria-hidden="true"></svg>
 
-          <div class="contact__grid contact__grid--three">
-            <a class="contact__item" href={site.links.linkedin} target="_blank" rel="noopener">
-              <span class="contact__label">LinkedIn</span>
-              <span class="contact__value">luis-felipe-hernandez-mora<span>↗</span></span>
+            <a class="contact-card" href={`mailto:${site.email}`} data-card>
+              <span class="contact-card__top">
+                <span class="contact-card__label">Email</span>
+                <span class="contact-card__index">01</span>
+              </span>
+              <span class="contact-card__value">{site.email}</span>
+              <span class="contact-card__arrow" aria-hidden="true">↗</span>
             </a>
-            <a class="contact__item" href={site.links.github} target="_blank" rel="noopener">
-              <span class="contact__label">GitHub</span>
-              <span class="contact__value">luisfelipehernandezmora<span>↗</span></span>
-            </a>
+
             <a
-              class="contact__item"
-              href={youtube || `mailto:${site.email}?subject=YouTube%20channel`}
-              target={youtube ? "_blank" : undefined}
-              rel={youtube ? "noopener" : undefined}
+              class="contact-card"
+              href={site.links.github}
+              target="_blank"
+              rel="noopener"
+              data-card
             >
-              <span class="contact__label">YouTube</span>
-              <span class="contact__value">{youtube ? "Watch the channel" : "Opening soon"}<span>↗</span></span>
+              <span class="contact-card__top">
+                <span class="contact-card__label">GitHub</span>
+                <span class="contact-card__index">02</span>
+              </span>
+              <span class="contact-card__value">luisfelipehernandezmora</span>
+              <span class="contact-card__arrow" aria-hidden="true">↗</span>
             </a>
+
+            <a
+              class="contact-card"
+              href={site.links.linkedin}
+              target="_blank"
+              rel="noopener"
+              data-card
+            >
+              <span class="contact-card__top">
+                <span class="contact-card__label">LinkedIn</span>
+                <span class="contact-card__index">03</span>
+              </span>
+              <span class="contact-card__value">luis-felipe-hernandez-mora</span>
+              <span class="contact-card__arrow" aria-hidden="true">↗</span>
+            </a>
+
+            {youtube ? (
+              <a
+                class="contact-card"
+                href={youtube}
+                target="_blank"
+                rel="noopener"
+                data-card
+              >
+                <span class="contact-card__top">
+                  <span class="contact-card__label">YouTube</span>
+                  <span class="contact-card__index">04</span>
+                </span>
+                <span class="contact-card__value">Watch the channel</span>
+                <span class="contact-card__arrow" aria-hidden="true">↗</span>
+              </a>
+            ) : (
+              <div class="contact-card contact-card--soon" data-card>
+                <span class="contact-card__top">
+                  <span class="contact-card__label">YouTube</span>
+                  <span class="contact-card__index">04</span>
+                </span>
+                <span class="contact-card__value">Opening soon</span>
+                <span class="contact-card__arrow" aria-hidden="true">↗</span>
+              </div>
+            )}
           </div>
         </section>
       </div>
@@ -360,6 +405,10 @@ const footprints = Array.from({ length: 34 }, (_, i) => {
   </footer>
 
   <script>
+    import { mountContactNet } from "../scripts/contact-net";
+
+    mountContactNet();
+
     const reveals = document.querySelectorAll<HTMLElement>(".reveal");
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -409,7 +458,7 @@ const footprints = Array.from({ length: 34 }, (_, i) => {
           window.clearTimeout(idleTimer);
           idleTimer = window.setTimeout(() => {
             footprintLayer?.classList.add("is-idle");
-          }, 900);
+          }, 1400);
         };
 
         const onScroll = () => {
