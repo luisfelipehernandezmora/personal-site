@@ -37,6 +37,10 @@ export function mountContactNet(): void {
   let activeIndex = -1;
   let leaveTimer = 0;
   let rebuildFrame = 0;
+  let beatTimer = 0;
+  let beatIndex = 0;
+  let beatClassTimer = 0;
+  let inView = false;
 
   const make = <K extends keyof SVGElementTagNameMap>(
     name: K,
@@ -253,15 +257,15 @@ export function mountContactNet(): void {
     });
   }
 
-  function tick(now: number): void {
-    let alive = false;
+  function ensureTick(): void {
+    if (!raf) raf = requestAnimationFrame(tick);
+  }
 
-    for (const pulse of pulses) {
+  function tick(now: number): void {
+    for (let i = pulses.length - 1; i >= 0; i--) {
+      const pulse = pulses[i];
       const elapsed = now - pulse.start;
-      if (elapsed < 0) {
-        alive = true;
-        continue;
-      }
+      if (elapsed < 0) continue;
 
       const t = Math.min(1, elapsed / pulse.duration);
       const eased = easeInOut(t);
@@ -272,10 +276,13 @@ export function mountContactNet(): void {
       pulse.el.setAttribute("cy", String(point.y));
       pulse.el.style.opacity = t < 1 ? "1" : "0";
 
-      if (t < 1) alive = true;
+      if (t >= 1) {
+        pulse.el.remove();
+        pulses.splice(i, 1);
+      }
     }
 
-    if (alive) {
+    if (pulses.length) {
       raf = requestAnimationFrame(tick);
     } else {
       raf = 0;
@@ -304,20 +311,9 @@ export function mountContactNet(): void {
     return { at: bestAt, distance: bestDistance };
   }
 
-  function activate(index: number): void {
-    activeIndex = index;
-    window.clearTimeout(leaveTimer);
-    container!.classList.add("is-active");
-
+  function fire(index: number, limit: number): void {
     const center = centers[index];
-    if (sourceEl && center) {
-      sourceEl.setAttribute("cx", String(center.x));
-      sourceEl.setAttribute("cy", String(center.y));
-    }
-
-    if (reduced || !center) return;
-
-    clearPulses();
+    if (!center) return;
 
     const candidates = traces
       .map((trace) => ({
@@ -326,7 +322,7 @@ export function mountContactNet(): void {
       }))
       .filter((item) => item.distance < 340)
       .sort((a, b) => a.distance - b.distance)
-      .slice(0, 20);
+      .slice(0, limit);
 
     const baseStart = performance.now() + 50;
 
@@ -342,7 +338,59 @@ export function mountContactNet(): void {
       }
     });
 
-    if (pulses.length) raf = requestAnimationFrame(tick);
+    ensureTick();
+  }
+
+  function activate(index: number): void {
+    activeIndex = index;
+    window.clearTimeout(leaveTimer);
+    container!.classList.add("is-active");
+
+    const center = centers[index];
+    if (sourceEl && center) {
+      sourceEl.setAttribute("cx", String(center.x));
+      sourceEl.setAttribute("cy", String(center.y));
+    }
+
+    if (reduced || !center) return;
+
+    clearPulses();
+    fire(index, 20);
+  }
+
+  function beat(): void {
+    if (!inView || activeIndex !== -1 || reduced) return;
+
+    const index = beatIndex % cards.length;
+    beatIndex += 1;
+
+    const center = centers[index];
+    if (sourceEl && center) {
+      sourceEl.setAttribute("cx", String(center.x));
+      sourceEl.setAttribute("cy", String(center.y));
+    }
+
+    container!.classList.add("is-beating");
+    window.clearTimeout(beatClassTimer);
+    beatClassTimer = window.setTimeout(() => {
+      container!.classList.remove("is-beating");
+    }, 280);
+
+    fire(index, 6);
+  }
+
+  function startBeats(): void {
+    if (reduced) return;
+    window.clearInterval(beatTimer);
+    beatTimer = window.setInterval(beat, 500);
+    beat();
+  }
+
+  function stopBeats(): void {
+    window.clearInterval(beatTimer);
+    beatTimer = 0;
+    window.clearTimeout(beatClassTimer);
+    container!.classList.remove("is-beating");
   }
 
   function deactivate(): void {
@@ -371,6 +419,21 @@ export function mountContactNet(): void {
   };
 
   build();
+
+  if ("IntersectionObserver" in window) {
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        inView = entry.isIntersecting;
+        if (inView) startBeats();
+        else stopBeats();
+      },
+      { threshold: 0.15 },
+    );
+    io.observe(container);
+  } else {
+    inView = true;
+    startBeats();
+  }
 
   if ("ResizeObserver" in window) {
     const ro = new ResizeObserver(scheduleBuild);

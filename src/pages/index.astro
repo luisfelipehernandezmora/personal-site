@@ -46,6 +46,7 @@ const footprints = Array.from({ length: 34 }, (_, i) => {
         <a href="#path">Path</a>
         <a href="#videos">Videos</a>
         <a href="#downloads">Guides</a>
+        <a href="#ai-notes">Notes</a>
         <a href="#contact">Contact</a>
         <a class="nav-cta" href={site.links.linkedin} target="_blank" rel="noopener">LinkedIn</a>
       </nav>
@@ -318,8 +319,62 @@ const footprints = Array.from({ length: 34 }, (_, i) => {
           )}
         </section>
 
+        <section class="section" id="ai-notes">
+          <div class="section__head">
+            <span class="section__index">06</span>
+            <h2 class="section__title">
+              What is new on AI? <span class="coming">(coming soon)</span>
+            </h2>
+            <p class="section__note">
+              A weekly read on what actually changed, with sources and a video.
+            </p>
+          </div>
+          <div class="soon-panel reveal">
+            <span class="soon-panel__label">In preparation</span>
+            <p>One useful update a week, filtered for signal instead of noise.</p>
+          </div>
+        </section>
+
+        <section class="section" id="ai-claims">
+          <div class="section__head">
+            <span class="section__index">07</span>
+            <h2 class="section__title">
+              Everyone says so much about AI — is all that true?
+              <span class="coming">(coming soon)</span>
+            </h2>
+            <p class="section__note">
+              Claim-by-claim checks on the things people keep repeating.
+            </p>
+          </div>
+          <div class="soon-panel reveal">
+            <span class="soon-panel__label">In preparation</span>
+            <p>
+              Short, sourced answers to the loudest claims, without the hype in either
+              direction.
+            </p>
+          </div>
+        </section>
+
+        <section class="section" id="ask">
+          <div class="section__head">
+            <span class="section__index">08</span>
+            <h2 class="section__title">Want to hear about something?</h2>
+            <p class="section__note">
+              Write to me. I’ll do the research and publish a commented answer here.
+            </p>
+          </div>
+          <a
+            class="ask-card reveal"
+            href={`mailto:${site.email}?subject=Topic%20for%20the%20AI%20notes`}
+          >
+            <span class="ask-card__label">Send a question</span>
+            <span class="ask-card__email">{site.email}</span>
+            <span class="ask-card__arrow" aria-hidden="true">↗</span>
+          </a>
+        </section>
+
         <section class="contact" id="contact">
-          <p class="eyebrow"><span style="color:var(--amber)">06</span><span>Contact</span></p>
+          <p class="eyebrow"><span style="color:var(--amber)">09</span><span>Contact</span></p>
           <h2 class="contact__title display">Contact</h2>
           <p class="contact__lede">For conversations about applied AI, education, and health.</p>
 
@@ -437,19 +492,44 @@ const footprints = Array.from({ length: 34 }, (_, i) => {
         let ticking = false;
         let idleTimer = 0;
         const idleTimers: number[] = [];
+        const revealQueue: SVGElement[] = [];
+        let revealTimer = 0;
+
+        const revealNext = () => {
+          const el = revealQueue.shift();
+          if (el && el.getAttribute("data-shown") === "1" && el.style.opacity === "0") {
+            el.style.opacity = "0.55";
+          }
+          revealTimer = revealQueue.length ? window.setTimeout(revealNext, 95) : 0;
+        };
 
         const updatePrints = () => {
           ticking = false;
           const vh = window.innerHeight;
+
           for (const el of prints) {
             const rect = el.getBoundingClientRect();
-            let opacity = 0;
+            let target = 0;
+
             if (rect.top < vh * 0.86 && rect.bottom > 64) {
-              opacity = Math.min(1, (vh * 0.86 - rect.top) / 90);
-              opacity *= Math.min(1, Math.max(0, (rect.bottom - 64) / 70));
-              opacity *= 0.55;
+              target = Math.min(1, (vh * 0.86 - rect.top) / 90);
+              target *= Math.min(1, Math.max(0, (rect.bottom - 64) / 70));
+              target *= 0.55;
             }
-            el.style.opacity = opacity.toFixed(3);
+
+            if (target > 0.01) {
+              if (el.getAttribute("data-shown") === "1") {
+                el.style.opacity = target.toFixed(3);
+              } else {
+                el.setAttribute("data-shown", "1");
+                el.style.opacity = "0";
+                revealQueue.push(el);
+                if (!revealTimer) revealTimer = window.setTimeout(revealNext, 60);
+              }
+            } else {
+              el.style.opacity = "0";
+              el.removeAttribute("data-shown");
+            }
           }
         };
 
@@ -461,6 +541,10 @@ const footprints = Array.from({ length: 34 }, (_, i) => {
         };
 
         const dissolve = () => {
+          revealQueue.length = 0;
+          window.clearTimeout(revealTimer);
+          revealTimer = 0;
+
           const vh = window.innerHeight;
           const visible = prints
             .map((el) => ({
@@ -475,6 +559,7 @@ const footprints = Array.from({ length: 34 }, (_, i) => {
             idleTimers.push(
               window.setTimeout(() => {
                 item.el.style.opacity = "0";
+                item.el.removeAttribute("data-shown");
               }, index * 110),
             );
           });
