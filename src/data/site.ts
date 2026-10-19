@@ -85,33 +85,3 @@ export const studies = [
   },
 ];
 
-export const resources = [
-  {
-    title: "Your first agent calling tools — a quick walkthrough",
-    desc: "A short, practical walkthrough of wiring a model to its first tool.",
-    file: "",
-    meta: "Walkthrough",
-    status: "Coming soon",
-  },
-  {
-    title: "A working vocabulary for prompts",
-    desc: "Context, constraints, examples, and the difference between an instruction and a contract.",
-    file: "",
-    meta: "Field guide · 01",
-    status: "In preparation",
-  },
-  {
-    title: "Structuring prompts as contracts",
-    desc: "Schemas, refusal paths, and validation: making an output fail loudly instead of quietly.",
-    file: "",
-    meta: "Field guide · 02",
-    status: "In preparation",
-  },
-  {
-    title: "Evaluating prompts without fooling yourself",
-    desc: "Sampling, blind comparisons, and the small harness that keeps a prompt honest.",
-    file: "",
-    meta: "Field guide · 03",
-    status: "In preparation",
-  },
-];

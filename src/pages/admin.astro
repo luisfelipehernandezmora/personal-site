@@ -1,8 +1,10 @@
 ---
 import "../styles/global.css";
 import videoData from "../data/videos.json";
+import resourceData from "../data/resources.json";
 
 const initialJson = JSON.stringify(videoData).replace(/</g, "\\u003c");
+const initialResourcesJson = JSON.stringify(resourceData).replace(/</g, "\\u003c");
 ---
 
 <!doctype html>
@@ -84,25 +86,72 @@ const initialJson = JSON.stringify(videoData).replace(/</g, "\\u003c");
       </section>
 
       <div class="admin-actions">
-        <button class="admin-btn admin-btn--primary" type="button" data-download>
+        <button class="admin-btn admin-btn--primary" type="button" data-download-videos>
           Download videos.json
         </button>
-        <button class="admin-btn" type="button" data-copy>Copy JSON</button>
-        <button class="admin-btn" type="button" data-reset>Reset</button>
+        <button class="admin-btn" type="button" data-copy-videos>Copy videos JSON</button>
+      </div>
+
+      <section class="admin-card">
+        <p class="admin-card__title">Add a guide</p>
+        <form class="admin-form" data-guide-form>
+          <div class="admin-field">
+            <label for="guide-title">Title</label>
+            <input id="guide-title" required placeholder="What the guide covers" />
+          </div>
+          <div class="admin-field">
+            <label for="guide-desc">Description</label>
+            <input id="guide-desc" required placeholder="One or two sentences" />
+          </div>
+          <div class="admin-field">
+            <label for="guide-file">File path <span>optional</span></label>
+            <input id="guide-file" placeholder="/downloads/guide.pdf" />
+          </div>
+          <div class="admin-grid">
+            <div class="admin-field">
+              <label for="guide-status">Status</label>
+              <select id="guide-status">
+                <option>Coming soon</option>
+                <option>In preparation</option>
+                <option>Available</option>
+              </select>
+            </div>
+            <div class="admin-field admin-field--submit">
+              <button class="admin-btn admin-btn--primary" type="submit">Add guide</button>
+            </div>
+          </div>
+        </form>
+      </section>
+
+      <section class="admin-card">
+        <div class="admin-card__head">
+          <p class="admin-card__title">Guides</p>
+          <span class="admin-count" data-guide-count>0</span>
+        </div>
+        <div class="admin-list" data-guide-list></div>
+      </section>
+
+      <div class="admin-actions">
+        <button class="admin-btn admin-btn--primary" type="button" data-download-resources>
+          Download resources.json
+        </button>
+        <button class="admin-btn" type="button" data-copy-resources>Copy guides JSON</button>
+        <button class="admin-btn" type="button" data-reset>Reset all</button>
       </div>
 
       <p class="admin-status" data-status role="status" aria-live="polite"></p>
 
       <div class="admin-note">
         <p>
-          Replace <code>src/data/videos.json</code> in the project with the downloaded file,
-          then commit it. Vercel rebuilds and the videos appear on the site.
+          Replace <code>src/data/videos.json</code> and <code>src/data/resources.json</code>
+          with the downloaded files, then commit. Vercel rebuilds and the site updates.
         </p>
-        <p>Edits stay in this browser until you download the file.</p>
+        <p>Edits stay in this browser until you download the files.</p>
       </div>
     </main>
 
     <script type="application/json" id="initial-videos" set:html={initialJson}></script>
+    <script type="application/json" id="initial-resources" set:html={initialResourcesJson}></script>
 
     <script>
       interface Video {
@@ -111,7 +160,15 @@ const initialJson = JSON.stringify(videoData).replace(/</g, "\\u003c");
         label?: string;
       }
 
-      const STORAGE_KEY = "lhm-admin-videos";
+      interface Guide {
+        title: string;
+        desc: string;
+        file: string;
+        status: string;
+      }
+
+      const VIDEO_KEY = "lhm-admin-videos";
+      const GUIDE_KEY = "lhm-admin-resources";
 
       const $ = <T extends HTMLElement>(selector: string): T | null =>
         document.querySelector<T>(selector);
@@ -129,14 +186,27 @@ const initialJson = JSON.stringify(videoData).replace(/</g, "\\u003c");
       const titleInput = $<HTMLInputElement>("#title");
       const labelInput = $<HTMLInputElement>("#label");
 
+      const guideListEl = $("[data-guide-list]");
+      const guideCountEl = $("[data-guide-count]");
+      const guideForm = $<HTMLFormElement>("[data-guide-form]");
+      const guideTitleInput = $<HTMLInputElement>("#guide-title");
+      const guideDescInput = $<HTMLInputElement>("#guide-desc");
+      const guideStatusInput = $<HTMLSelectElement>("#guide-status");
+      const guideFileInput = $<HTMLInputElement>("#guide-file");
+
       const initialRaw = document.getElementById("initial-videos")?.textContent || "[]";
       const initialVideos = JSON.parse(initialRaw) as Video[];
+      const initialResourcesRaw =
+        document.getElementById("initial-resources")?.textContent || "[]";
+      const initialResources = JSON.parse(initialResourcesRaw) as Guide[];
 
       let videos: Video[] = initialVideos.slice();
+      let guides: Guide[] = initialResources.slice();
       let loadedFromStorage = false;
+      let guidesLoadedFromStorage = false;
 
       try {
-        const stored = localStorage.getItem(STORAGE_KEY);
+        const stored = localStorage.getItem(VIDEO_KEY);
         if (stored) {
           const parsed = JSON.parse(stored);
           if (Array.isArray(parsed)) {
@@ -149,6 +219,29 @@ const initialJson = JSON.stringify(videoData).replace(/</g, "\\u003c");
         }
       } catch {
         videos = initialVideos.slice();
+      }
+
+      try {
+        const stored = localStorage.getItem(GUIDE_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) {
+            guides = parsed
+              .filter(
+                (item): item is Guide =>
+                  item && typeof item.title === "string" && typeof item.desc === "string",
+              )
+              .map((item) => ({
+                title: item.title,
+                desc: item.desc,
+                file: typeof item.file === "string" ? item.file : "",
+                status: typeof item.status === "string" ? item.status : "Coming soon",
+              }));
+            guidesLoadedFromStorage = true;
+          }
+        }
+      } catch {
+        guides = initialResources.slice();
       }
 
       function setStatus(message: string, kind: "ok" | "error" | "" = ""): void {
@@ -166,19 +259,27 @@ const initialJson = JSON.stringify(videoData).replace(/</g, "\\u003c");
         return match ? match[1] : null;
       }
 
-      function persist(): void {
+      function persistVideos(): void {
         try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(videos));
+          localStorage.setItem(VIDEO_KEY, JSON.stringify(videos));
         } catch {
           // storage can be unavailable; the download still works
         }
       }
 
-      function json(): string {
-        return `${JSON.stringify(videos, null, 2)}\n`;
+      function persistGuides(): void {
+        try {
+          localStorage.setItem(GUIDE_KEY, JSON.stringify(guides));
+        } catch {
+          // storage can be unavailable; the download still works
+        }
       }
 
-      function render(): void {
+      function jsonFor(data: unknown): string {
+        return `${JSON.stringify(data, null, 2)}\n`;
+      }
+
+      function renderVideos(): void {
         if (listEl) listEl.innerHTML = "";
         if (countEl) countEl.textContent = String(videos.length);
 
@@ -225,8 +326,8 @@ const initialJson = JSON.stringify(videoData).replace(/</g, "\\u003c");
           up.addEventListener("click", () => {
             if (index === 0) return;
             [videos[index - 1], videos[index]] = [videos[index], videos[index - 1]];
-            persist();
-            render();
+            persistVideos();
+            renderVideos();
           });
 
           const down = document.createElement("button");
@@ -238,8 +339,8 @@ const initialJson = JSON.stringify(videoData).replace(/</g, "\\u003c");
           down.addEventListener("click", () => {
             if (index === videos.length - 1) return;
             [videos[index + 1], videos[index]] = [videos[index], videos[index + 1]];
-            persist();
-            render();
+            persistVideos();
+            renderVideos();
           });
 
           const remove = document.createElement("button");
@@ -250,8 +351,8 @@ const initialJson = JSON.stringify(videoData).replace(/</g, "\\u003c");
           remove.addEventListener("click", () => {
             if (!window.confirm(`Remove “${video.title}” from the list?`)) return;
             videos.splice(index, 1);
-            persist();
-            render();
+            persistVideos();
+            renderVideos();
           });
 
           actions.append(up, down, remove);
@@ -260,36 +361,138 @@ const initialJson = JSON.stringify(videoData).replace(/</g, "\\u003c");
         });
       }
 
-      function download(): void {
-        const blob = new Blob([json()], { type: "application/json" });
+      function renderGuides(): void {
+        if (guideListEl) guideListEl.innerHTML = "";
+        if (guideCountEl) guideCountEl.textContent = String(guides.length);
+
+        if (!guides.length) {
+          const empty = document.createElement("p");
+          empty.className = "admin-empty";
+          empty.textContent = "No guides yet. Add the first one above.";
+          guideListEl?.append(empty);
+          return;
+        }
+
+        guides.forEach((guide, index) => {
+          const row = document.createElement("div");
+          row.className = "admin-guide";
+
+          const body = document.createElement("div");
+          body.className = "admin-guide__body";
+
+          const title = document.createElement("p");
+          title.className = "admin-guide__title";
+          title.textContent = guide.title;
+
+          const desc = document.createElement("p");
+          desc.className = "admin-guide__desc";
+          desc.textContent = guide.desc;
+
+          const meta = document.createElement("p");
+          meta.className = "admin-guide__meta";
+          meta.textContent = [guide.status, guide.file].filter(Boolean).join(" · ");
+
+          body.append(title, desc, meta);
+
+          const actions = document.createElement("div");
+          actions.className = "admin-video__actions";
+
+          const up = document.createElement("button");
+          up.type = "button";
+          up.className = "admin-icon";
+          up.textContent = "↑";
+          up.title = "Move up";
+          up.disabled = index === 0;
+          up.addEventListener("click", () => {
+            if (index === 0) return;
+            [guides[index - 1], guides[index]] = [guides[index], guides[index - 1]];
+            persistGuides();
+            renderGuides();
+          });
+
+          const down = document.createElement("button");
+          down.type = "button";
+          down.className = "admin-icon";
+          down.textContent = "↓";
+          down.title = "Move down";
+          down.disabled = index === guides.length - 1;
+          down.addEventListener("click", () => {
+            if (index === guides.length - 1) return;
+            [guides[index + 1], guides[index]] = [guides[index], guides[index + 1]];
+            persistGuides();
+            renderGuides();
+          });
+
+          const remove = document.createElement("button");
+          remove.type = "button";
+          remove.className = "admin-icon admin-icon--danger";
+          remove.textContent = "×";
+          remove.title = "Remove";
+          remove.addEventListener("click", () => {
+            if (!window.confirm(`Remove “${guide.title}” from the guides?`)) return;
+            guides.splice(index, 1);
+            persistGuides();
+            renderGuides();
+          });
+
+          actions.append(up, down, remove);
+          row.append(body, actions);
+          guideListEl?.append(row);
+        });
+      }
+
+      function downloadJson(filename: string, data: unknown): void {
+        const blob = new Blob([jsonFor(data)], { type: "application/json" });
         const url = URL.createObjectURL(blob);
         const anchor = document.createElement("a");
         anchor.href = url;
-        anchor.download = "videos.json";
+        anchor.download = filename;
         document.body.append(anchor);
         anchor.click();
         anchor.remove();
         URL.revokeObjectURL(url);
-        setStatus("Downloaded. Replace src/data/videos.json with this file and commit it.", "ok");
       }
 
-      $("[data-download]")?.addEventListener("click", download);
+      $("[data-download-videos]")?.addEventListener("click", () => {
+        downloadJson("videos.json", videos);
+        setStatus("Downloaded videos.json. Replace src/data/videos.json and commit it.", "ok");
+      });
 
-      $("[data-copy]")?.addEventListener("click", async () => {
+      $("[data-download-resources]")?.addEventListener("click", () => {
+        downloadJson("resources.json", guides);
+        setStatus(
+          "Downloaded resources.json. Replace src/data/resources.json and commit it.",
+          "ok",
+        );
+      });
+
+      $("[data-copy-videos]")?.addEventListener("click", async () => {
         try {
-          await navigator.clipboard.writeText(json());
-          setStatus("Copied the JSON to your clipboard.", "ok");
+          await navigator.clipboard.writeText(jsonFor(videos));
+          setStatus("Copied the video JSON to your clipboard.", "ok");
+        } catch {
+          setStatus("Could not copy. Use the download button instead.", "error");
+        }
+      });
+
+      $("[data-copy-resources]")?.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(jsonFor(guides));
+          setStatus("Copied the guides JSON to your clipboard.", "ok");
         } catch {
           setStatus("Could not copy. Use the download button instead.", "error");
         }
       });
 
       $("[data-reset]")?.addEventListener("click", () => {
-        if (!window.confirm("Reset to the videos currently published on the site?")) return;
+        if (!window.confirm("Reset videos and guides to what is currently published?")) return;
         videos = initialVideos.slice();
-        localStorage.removeItem(STORAGE_KEY);
-        render();
-        setStatus("Reset to the published list.", "ok");
+        guides = initialResources.slice();
+        localStorage.removeItem(VIDEO_KEY);
+        localStorage.removeItem(GUIDE_KEY);
+        renderVideos();
+        renderGuides();
+        setStatus("Reset to the published content.", "ok");
       });
 
       urlInput?.addEventListener("input", () => {
@@ -326,8 +529,8 @@ const initialJson = JSON.stringify(videoData).replace(/</g, "\\u003c");
 
         const label = labelInput?.value.trim();
         videos.push({ id, title, ...(label ? { label } : {}) });
-        persist();
-        render();
+        persistVideos();
+        renderVideos();
 
         if (urlInput) urlInput.value = "";
         if (titleInput) titleInput.value = "";
@@ -337,10 +540,38 @@ const initialJson = JSON.stringify(videoData).replace(/</g, "\\u003c");
         setStatus("Added. Download the file when you are ready to publish.", "ok");
       });
 
-      render();
+      guideForm?.addEventListener("submit", (event) => {
+        event.preventDefault();
 
-      if (loadedFromStorage) {
-        setStatus("Loaded your local edits. Download the file to publish them.", "");
+        const title = guideTitleInput?.value.trim() || "";
+        const desc = guideDescInput?.value.trim() || "";
+
+        if (!title) {
+          setStatus("Give the guide a title.", "error");
+          return;
+        }
+        if (!desc) {
+          setStatus("Add a short description for the guide.", "error");
+          return;
+        }
+
+        guides.push({
+          title,
+          desc,
+          file: guideFileInput?.value.trim() || "",
+          status: guideStatusInput?.value || "Coming soon",
+        });
+        persistGuides();
+        renderGuides();
+        guideForm.reset();
+        setStatus("Guide added. Download the file when you are ready to publish.", "ok");
+      });
+
+      renderVideos();
+      renderGuides();
+
+      if (loadedFromStorage || guidesLoadedFromStorage) {
+        setStatus("Loaded your local edits. Download the files to publish them.", "");
       }
     </script>
 
@@ -433,7 +664,8 @@ const initialJson = JSON.stringify(videoData).replace(/</g, "\\u003c");
         opacity: 0.75;
       }
 
-      .admin-field input {
+      .admin-field input,
+      .admin-field select {
         width: 100%;
         padding: 10px 12px;
         background: #08080a;
@@ -445,7 +677,8 @@ const initialJson = JSON.stringify(videoData).replace(/</g, "\\u003c");
         transition: border-color 0.25s var(--ease);
       }
 
-      .admin-field input:focus {
+      .admin-field input:focus,
+      .admin-field select:focus {
         outline: none;
         border-color: rgba(217, 154, 78, 0.65);
       }
@@ -570,6 +803,40 @@ const initialJson = JSON.stringify(videoData).replace(/</g, "\\u003c");
         gap: 6px;
       }
 
+      .admin-guide {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 16px;
+        align-items: center;
+        padding: 14px 0;
+        border-top: 1px solid var(--rule);
+      }
+
+      .admin-guide:first-child {
+        border-top: 0;
+      }
+
+      .admin-guide__title {
+        font-size: 0.94rem;
+        font-weight: 500;
+        line-height: 1.45;
+      }
+
+      .admin-guide__desc {
+        margin-top: 4px;
+        font-size: 0.86rem;
+        line-height: 1.55;
+        color: var(--ink-dim);
+      }
+
+      .admin-guide__meta {
+        margin-top: 6px;
+        font-family: var(--mono);
+        font-size: 9.5px;
+        letter-spacing: 0.04em;
+        color: var(--ink-faint);
+      }
+
       .admin-icon {
         width: 30px;
         height: 30px;
@@ -677,6 +944,15 @@ const initialJson = JSON.stringify(videoData).replace(/</g, "\\u003c");
 
         .admin-video__actions {
           grid-column: 1 / -1;
+          justify-content: flex-end;
+        }
+
+        .admin-guide {
+          grid-template-columns: 1fr;
+          gap: 10px;
+        }
+
+        .admin-guide .admin-video__actions {
           justify-content: flex-end;
         }
       }

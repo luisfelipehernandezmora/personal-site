@@ -1,8 +1,9 @@
 ---
 import Base from "../layouts/Base.astro";
 import TetrisPanel from "../components/TetrisPanel.astro";
-import { site, work, roles, studies, resources } from "../data/site";
+import { site, work, roles, studies } from "../data/site";
 import videoData from "../data/videos.json";
+import resourceData from "../data/resources.json";
 
 interface VideoItem {
   id: string;
@@ -10,7 +11,15 @@ interface VideoItem {
   label?: string;
 }
 
+interface ResourceItem {
+  title: string;
+  desc: string;
+  file: string;
+  status: string;
+}
+
 const videos = videoData as VideoItem[];
+const resources = resourceData as ResourceItem[];
 const year = new Date().getFullYear();
 const youtube = site.links.youtube;
 
@@ -255,11 +264,16 @@ const footprints = Array.from({ length: 34 }, (_, i) => {
             <span class="section__index">05</span>
             <h2 class="section__title">Take it with you</h2>
             <p class="section__note">
-              Short field guides on prompt engineering. Written to be printed, annotated,
-              and kept on a desk.
+              Short guides on applied AI. Written to be printed, annotated, and kept on a desk.
             </p>
           </div>
 
+          {resources.length === 0 ? (
+            <div class="video-empty reveal">
+              <p class="video-empty__title">Guides are being written.</p>
+              <p class="video-empty__text">New walkthroughs will appear here.</p>
+            </div>
+          ) : (
           <div class="resource-grid">
             {resources.map((r, i) =>
               r.file ? (
@@ -301,6 +315,7 @@ const footprints = Array.from({ length: 34 }, (_, i) => {
               ),
             )}
           </div>
+          )}
         </section>
 
         <section class="contact" id="contact">
