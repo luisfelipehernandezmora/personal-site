@@ -77,7 +77,7 @@ const footprints = Array.from({ length: 34 }, (_, i) => {
 
         <a class="hero__scroll" href="#about">
           <span class="rule" aria-hidden="true"></span>
-          <span>The reasoning</span>
+          <span>Position</span>
         </a>
       </section>
 
@@ -87,26 +87,6 @@ const footprints = Array.from({ length: 34 }, (_, i) => {
         <section class="section" id="about">
           <div class="eyebrow"><span style="color:var(--amber)">01</span><span>Position</span></div>
 
-          <p class="thesis__statement reveal">
-            Health and education are where I want this work to <em>land</em> — because
-            that is where a confident wrong answer costs the most.
-          </p>
-
-          <div class="thesis__body">
-            <p class="reveal">
-              I trained as a civil engineer, where a structure is honest: it either carries
-              the load or it does not. That habit followed me into software. Before I trust a
-              model with a decision, I want to know what it was given, what it ignored, and
-              when it should stop.
-            </p>
-            <p class="reveal">
-              In my current work I build production agentic systems — typed tools, approval
-              gates, routing across providers, and evaluation harnesses that make an output
-              accountable. <strong>The architecture is the part that is easy to describe.
-              The hard part is deciding what a system should refuse to do.</strong>
-            </p>
-          </div>
-
           <div class="interests reveal">
             <p class="interests__label">Interests</p>
             <ul class="interests__list">
@@ -114,12 +94,6 @@ const footprints = Array.from({ length: 34 }, (_, i) => {
               <li><span>02</span>Education</li>
               <li><span>03</span>Health</li>
             </ul>
-          </div>
-
-          <div class="pull reveal">
-            <span>//</span> My interest in health and education is not a pivot away from
-            engineering. It is the same question at a higher stake: what does it take to
-            trust a system when being wrong is expensive?
           </div>
         </section>
 
@@ -322,7 +296,7 @@ const footprints = Array.from({ length: 34 }, (_, i) => {
                   </div>
                   <h3 class="resource-card__title">{r.title}</h3>
                   <p class="resource-card__desc">{r.desc}</p>
-                  <p class="resource-card__meta">In preparation</p>
+                  <p class="resource-card__meta">{r.status}</p>
                 </div>
               ),
             )}
@@ -391,11 +365,14 @@ const footprints = Array.from({ length: 34 }, (_, i) => {
     }
 
     const prints = Array.from(document.querySelectorAll<SVGElement>(".foot"));
+    const footprintLayer = document.querySelector<HTMLElement>(".footprints");
+
     if (prints.length) {
       if (reduce) {
         prints.forEach((el) => (el.style.opacity = "0.42"));
       } else {
         let ticking = false;
+        let idleTimer = 0;
 
         const updatePrints = () => {
           ticking = false;
@@ -412,7 +389,16 @@ const footprints = Array.from({ length: 34 }, (_, i) => {
           }
         };
 
+        const wake = () => {
+          footprintLayer?.classList.remove("is-idle");
+          window.clearTimeout(idleTimer);
+          idleTimer = window.setTimeout(() => {
+            footprintLayer?.classList.add("is-idle");
+          }, 900);
+        };
+
         const onScroll = () => {
+          wake();
           if (ticking) return;
           ticking = true;
           requestAnimationFrame(updatePrints);
@@ -421,6 +407,7 @@ const footprints = Array.from({ length: 34 }, (_, i) => {
         window.addEventListener("scroll", onScroll, { passive: true });
         window.addEventListener("resize", onScroll);
         updatePrints();
+        wake();
       }
     }
   </script>
