@@ -14,54 +14,49 @@ export const site = {
 export const work = [
   {
     num: "01",
-    title: "Agentic platform with human-in-the-loop governance",
-    meta: "Wekan · 2025—present",
-    desc: "Architected multi-agent workflows and Model Context Protocol servers that let language models execute real work — with approval gates, role-based access, and audit logging at every consequential step.",
-    tags: ["MCP", "FastMCP", "Multi-agent", "HITL", "Docker"],
+    title: "Agentic AI Workshop with LangChain",
+    meta: "Open source · Python · 8 stars",
+    desc: "A two-hour, hands-on introduction to building AI agents with LangChain and Groq. Phase-by-phase boilerplate, three track projects for robotics, AI, and cybersecurity, plus a deck and cheat sheet, built for a mixed-skill classroom at Amrita University.",
+    tags: ["LangChain", "Groq", "Agentic AI", "Education"],
+    url: "https://github.com/luisfelipehernandezmora/Agentic_AI_Workshop_with_LangChain",
   },
   {
     num: "02",
-    title: "Multi-provider LLM routing and cost control",
-    meta: "Wekan · 2025—present",
-    desc: "Built routing pipelines across providers with fallback chains and parallel execution. Cut multi-topic generation from roughly ten minutes to fifteen seconds, and reduced cost by about 60% through prompt caching and single-call screening.",
-    tags: ["FastAPI", "MongoDB", "Parallelism", "Caching"],
-  },
-  {
-    num: "03",
-    title: "Evaluation harnesses for grounded output",
-    meta: "Wekan · 2025—present",
-    desc: "Designed statistical acceptance sampling, blind multi-model bake-offs, and a suite of over a thousand tests to hold generated output to deterministic, zero-hallucination constraints.",
-    tags: ["Evaluation", "Statistical QA", "CI/CD", "Testing"],
-  },
-  {
-    num: "04",
-    title: "Grounded ingestion for technical documentation",
-    meta: "Wekan · 2025—present",
-    desc: "Built multimodal pipelines across PDFs, Office documents, images, and speech, converting unstructured technical material into schema-validated records that carry their provenance.",
-    tags: ["Multimodal", "Whisper", "Schema validation", "Provenance"],
+    title: "Automotive MCP Use Case",
+    meta: "Open source · TypeScript",
+    desc: "An MCP demo for industrial plant diagnostics and emergency parts sourcing, built with NitroStack. Typed tool calls connect a model to operational systems without handing over the keys.",
+    tags: ["MCP", "NitroStack", "TypeScript", "Tool calling"],
+    url: "https://github.com/luisfelipehernandezmora/Automotive_MCP_Usecase",
   },
 ];
 
 export const roles = [
   {
-    when: "2025 — now",
-    role: "AI Product & Application Engineer",
+    when: "Oct 2025 — now",
+    role: "AI Engineer (LLM)",
     org: "Wekan Enterprise Solutions",
-    desc: "Agentic architecture, MCP tooling, LLM routing, and evaluation systems. Also designed and delivered hands-on AI engineering workshops for 30+ developers.",
+    desc: "Multi-agent platforms and MCP servers with human approval gates; multi-provider LLM pipelines with fallback routing; statistical acceptance sampling and automated test suites for zero-hallucination output; multimodal ingestion from PDFs, images, and speech.",
     note: "Remote",
   },
   {
-    when: "2023 — 2026",
+    when: "May — Oct 2025",
+    role: "Learning and Development Specialist",
+    org: "Wekan Enterprise Solutions",
+    desc: "Built standardized programming evaluations, coding hackathons, and developer curricula for more than 30 engineers, with a maintained library of technical learning paths.",
+    note: "Remote",
+  },
+  {
+    when: "Jan 2023 — Mar 2026",
     role: "Faculty & Data Pipeline Engineer",
-    org: "Amrita Vishwa Vidyapeetham · Cybersecurity Systems & Networks",
-    desc: "Taught master's-level Python sequences focused on secure parsing, backend data structures, and defensive coding. Engineered secure crawlers and ETL pipelines for machine learning research.",
-    note: "Remote",
+    org: "Amrita Vishwa Vidyapeetham",
+    desc: "Taught master's-level Python sequences focused on secure parsing and backend configuration. Engineered crawlers and ETL pipelines that structured endpoint data for machine learning research.",
+    note: "India",
   },
   {
-    when: "2019 · 2021–22",
-    role: "Civil Engineer & Project Specialist",
-    org: "PHC Ingenieros Consultores",
-    desc: "Directed delivery of a 1,800 m², three-storey residential complex — municipal permissions, budget engineering, and technical compliance.",
+    when: "2018 — 2022",
+    role: "Civil Engineer — Construction",
+    org: "PHC Ingenieros Consultores & Edificar S.A.",
+    desc: "Two and a half years of infrastructure and commercial construction, including a 1,800 m², three-storey residential complex and a national high school. Led municipal permitting, structural budgeting, site logistics, and final engineering sign-offs.",
     note: "San José, Costa Rica",
   },
 ];
@@ -87,5 +82,26 @@ export const studies = [
     org: "Universidad de Costa Rica",
     desc: "Graduated with a perfect 100/100 thesis defense on multivariate stress models. Coursework in linear algebra, calculus, and numerical methods.",
     note: "Thesis: 100/100",
+  },
+];
+
+export const resources = [
+  {
+    title: "A working vocabulary for prompts",
+    desc: "Context, constraints, examples, and the difference between an instruction and a contract.",
+    file: "",
+    meta: "Field guide · 01",
+  },
+  {
+    title: "Structuring prompts as contracts",
+    desc: "Schemas, refusal paths, and validation: making an output fail loudly instead of quietly.",
+    file: "",
+    meta: "Field guide · 02",
+  },
+  {
+    title: "Evaluating prompts without fooling yourself",
+    desc: "Sampling, blind comparisons, and the small harness that keeps a prompt honest.",
+    file: "",
+    meta: "Field guide · 03",
   },
 ];

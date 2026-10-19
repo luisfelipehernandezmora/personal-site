@@ -260,6 +260,7 @@ export function mountTetris(): void {
   let mode: Mode = 'agent';
   let running = false;
   let allowAuto = !reduced;
+  let ambient = false;
   let raf = 0;
   let last = 0;
   let dropAcc = 0;
@@ -284,7 +285,7 @@ export function mountTetris(): void {
   function updateDom(): void {
     if (modeEl) modeEl.textContent = mode === 'human' ? 'you · playing' : 'agent · playing';
     if (dotEl) dotEl.dataset.mode = mode;
-    if (hintEl) hintEl.textContent = mode === 'human' ? 'esc to release' : 'click to take over';
+    if (hintEl) hintEl.textContent = mode === 'human' ? 'esc to release' : 'autonomous';
     if (linesEl) linesEl.textContent = String(lines);
     panel!.classList.toggle('is-player', mode === 'human');
   }
@@ -665,6 +666,7 @@ export function mountTetris(): void {
 
   canvas.addEventListener('pointerdown', (e) => {
     e.preventDefault();
+    if (ambient) return;
     allowAuto = true;
     if (mode !== 'human') {
       setMode('human');
@@ -682,7 +684,7 @@ export function mountTetris(): void {
   });
 
   window.addEventListener('keydown', (e) => {
-    if (mode !== 'human') return;
+    if (mode !== 'human' || ambient) return;
     lastInput = performance.now();
 
     switch (e.key) {
@@ -730,6 +732,7 @@ export function mountTetris(): void {
   panel.querySelectorAll<HTMLElement>('[data-action]').forEach((btn) => {
     btn.addEventListener('pointerdown', (e) => {
       e.preventDefault();
+      if (ambient) return;
       allowAuto = true;
       if (mode !== 'human') setMode('human');
       lastInput = performance.now();
@@ -737,6 +740,21 @@ export function mountTetris(): void {
       start();
     });
   });
+
+  const heroEl = document.querySelector<HTMLElement>('.hero');
+  const wide = window.matchMedia('(min-width: 1000px)');
+
+  function updateAmbient(): void {
+    const threshold = heroEl ? heroEl.offsetHeight * 0.6 : 340;
+    const next = wide.matches && window.scrollY > threshold;
+    if (next === ambient) return;
+    ambient = next;
+    panel!.classList.toggle('is-ambient', ambient);
+    if (ambient && mode === 'human') setMode('agent');
+  }
+
+  window.addEventListener('scroll', updateAmbient, { passive: true });
+  window.addEventListener('resize', updateAmbient);
 
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) stop();
@@ -768,6 +786,7 @@ export function mountTetris(): void {
 
   resize();
   seededBoard(14);
+  updateAmbient();
 
   if (reduced) {
     // static until the visitor chooses to play

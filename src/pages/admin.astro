@@ -1,5 +1,8 @@
 ---
 import "../styles/global.css";
+import videoData from "../data/videos.json";
+
+const initialJson = JSON.stringify(videoData).replace(/</g, "\\u003c");
 ---
 
 <!doctype html>
@@ -34,116 +37,72 @@ import "../styles/global.css";
         <p class="eyebrow"><span style="color:var(--amber)">admin</span><span>Videos</span></p>
         <h1 class="admin__title display">Video admin</h1>
         <p class="admin__lede">
-          Add a YouTube link and it is committed to the site’s repository. Vercel rebuilds and
-          the public page updates in about a minute.
+          Paste a YouTube link, give it a title, and download the updated list. No account
+          or token required.
         </p>
       </div>
 
-      <section class="admin-card" data-setup>
-        <p class="admin-card__title">Connect to GitHub</p>
-        <p class="admin-card__note">
-          Use a <strong>fine-grained personal access token</strong> limited to this repository,
-          with <strong>Contents: Read and write</strong>. It is kept in this browser only.
+      <section class="admin-card">
+        <p class="admin-card__title">Add a video</p>
+        <form class="admin-form" data-add-form>
+          <div class="admin-grid">
+            <div class="admin-field">
+              <label for="url">YouTube URL</label>
+              <input id="url" required placeholder="https://www.youtube.com/watch?v=…" />
+            </div>
+            <div class="admin-field">
+              <label for="title">Title</label>
+              <input id="title" required placeholder="What the episode is about" />
+            </div>
+          </div>
+          <div class="admin-grid">
+            <div class="admin-field">
+              <label for="label">Episode label <span>optional</span></label>
+              <input id="label" placeholder="Episode 01" />
+            </div>
+            <div class="admin-field admin-field--submit">
+              <button class="admin-btn admin-btn--primary" type="submit">Add video</button>
+            </div>
+          </div>
+        </form>
+
+        <div class="admin-preview" data-preview hidden>
+          <img data-preview-thumb alt="" />
+          <div>
+            <p class="admin-preview__title" data-preview-title></p>
+            <p class="admin-preview__meta" data-preview-meta></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="admin-card">
+        <div class="admin-card__head">
+          <p class="admin-card__title">Videos</p>
+          <span class="admin-count" data-count>0</span>
+        </div>
+        <div class="admin-list" data-list></div>
+      </section>
+
+      <div class="admin-actions">
+        <button class="admin-btn admin-btn--primary" type="button" data-download>
+          Download videos.json
+        </button>
+        <button class="admin-btn" type="button" data-copy>Copy JSON</button>
+        <button class="admin-btn" type="button" data-reset>Reset</button>
+      </div>
+
+      <p class="admin-status" data-status role="status" aria-live="polite"></p>
+
+      <div class="admin-note">
+        <p>
+          Replace <code>src/data/videos.json</code> in the project with the downloaded file,
+          then commit it. Vercel rebuilds and the videos appear on the site.
         </p>
-
-        <div class="admin-grid">
-          <div class="admin-field">
-            <label for="owner">Repository owner</label>
-            <input id="owner" autocomplete="off" spellcheck="false" />
-          </div>
-          <div class="admin-field">
-            <label for="repo">Repository</label>
-            <input id="repo" autocomplete="off" spellcheck="false" />
-          </div>
-          <div class="admin-field">
-            <label for="branch">Branch</label>
-            <input id="branch" autocomplete="off" spellcheck="false" />
-          </div>
-          <div class="admin-field">
-            <label for="path">Data file</label>
-            <input id="path" autocomplete="off" spellcheck="false" />
-          </div>
-        </div>
-
-        <div class="admin-field admin-field--wide">
-          <label for="token">Personal access token</label>
-          <input
-            id="token"
-            type="password"
-            autocomplete="off"
-            spellcheck="false"
-            placeholder="github_pat_…"
-          />
-        </div>
-
-        <div class="admin-row">
-          <label class="admin-check">
-            <input id="remember" type="checkbox" />
-            Keep the token on this device
-          </label>
-          <div class="admin-row__actions">
-            <a
-              class="admin-link"
-              href="https://github.com/settings/personal-access-tokens/new"
-              target="_blank"
-              rel="noopener">Create a token ↗</a
-            >
-            <button class="admin-btn admin-btn--primary" type="button" data-connect>Connect</button>
-          </div>
-        </div>
-
-        <p class="admin-status" data-status role="status" aria-live="polite"></p>
-      </section>
-
-      <section class="admin-workspace" data-workspace hidden>
-        <div class="admin-bar">
-          <p class="admin-repo" data-repo-info></p>
-          <button class="admin-btn" type="button" data-disconnect>Disconnect</button>
-        </div>
-
-        <p class="admin-status" data-workspace-status role="status" aria-live="polite"></p>
-
-        <section class="admin-card">
-          <p class="admin-card__title">Add a video</p>
-          <form class="admin-form" data-add-form>
-            <div class="admin-grid">
-              <div class="admin-field">
-                <label for="url">YouTube URL</label>
-                <input id="url" required placeholder="https://www.youtube.com/watch?v=…" />
-              </div>
-              <div class="admin-field">
-                <label for="title">Title</label>
-                <input id="title" required placeholder="What the episode is about" />
-              </div>
-            </div>
-            <div class="admin-grid">
-              <div class="admin-field">
-                <label for="label">Episode label <span>optional</span></label>
-                <input id="label" placeholder="Episode 01" />
-              </div>
-              <div class="admin-field admin-field--submit">
-                <button class="admin-btn admin-btn--primary" type="submit">Add video</button>
-              </div>
-            </div>
-          </form>
-          <div class="admin-preview" data-preview hidden>
-            <img data-preview-thumb alt="" />
-            <div>
-              <p class="admin-preview__title" data-preview-title></p>
-              <p class="admin-preview__meta" data-preview-meta></p>
-            </div>
-          </div>
-        </section>
-
-        <section class="admin-card">
-          <div class="admin-card__head">
-            <p class="admin-card__title">Published videos</p>
-            <span class="admin-count" data-count>0</span>
-          </div>
-          <div class="admin-list" data-list></div>
-        </section>
-      </section>
+        <p>Edits stay in this browser until you download the file.</p>
+      </div>
     </main>
+
+    <script type="application/json" id="initial-videos" set:html={initialJson}></script>
 
     <script>
       interface Video {
@@ -152,59 +111,50 @@ import "../styles/global.css";
         label?: string;
       }
 
-      interface Config {
-        owner: string;
-        repo: string;
-        branch: string;
-        path: string;
-      }
-
-      const CFG_KEY = "lhm-admin-config";
-      const TOKEN_KEY = "lhm-admin-token";
+      const STORAGE_KEY = "lhm-admin-videos";
 
       const $ = <T extends HTMLElement>(selector: string): T | null =>
         document.querySelector<T>(selector);
 
-      const setup = $("[data-setup]");
-      const workspace = $("[data-workspace]");
-      const statusEl = $("[data-status]");
-      const workspaceStatus = $("[data-workspace-status]");
-      const repoInfo = $("[data-repo-info]");
       const listEl = $("[data-list]");
       const countEl = $("[data-count]");
       const preview = $("[data-preview]");
       const previewThumb = $<HTMLImageElement>("[data-preview-thumb]");
       const previewTitle = $("[data-preview-title]");
       const previewMeta = $("[data-preview-meta]");
-
-      const ownerInput = $<HTMLInputElement>("#owner");
-      const repoInput = $<HTMLInputElement>("#repo");
-      const branchInput = $<HTMLInputElement>("#branch");
-      const pathInput = $<HTMLInputElement>("#path");
-      const tokenInput = $<HTMLInputElement>("#token");
-      const rememberInput = $<HTMLInputElement>("#remember");
+      const statusEl = $("[data-status]");
 
       const addForm = $<HTMLFormElement>("[data-add-form]");
       const urlInput = $<HTMLInputElement>("#url");
       const titleInput = $<HTMLInputElement>("#title");
       const labelInput = $<HTMLInputElement>("#label");
 
-      let config: Config | null = null;
-      let token = "";
-      let videos: Video[] = [];
-      let sha: string | null = null;
-      let busy = false;
+      const initialRaw = document.getElementById("initial-videos")?.textContent || "[]";
+      const initialVideos = JSON.parse(initialRaw) as Video[];
+
+      let videos: Video[] = initialVideos.slice();
+      let loadedFromStorage = false;
+
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) {
+            videos = parsed.filter(
+              (item): item is Video =>
+                item && typeof item.id === "string" && typeof item.title === "string",
+            );
+            loadedFromStorage = true;
+          }
+        }
+      } catch {
+        videos = initialVideos.slice();
+      }
 
       function setStatus(message: string, kind: "ok" | "error" | "" = ""): void {
         if (!statusEl) return;
         statusEl.textContent = message;
         statusEl.dataset.kind = kind;
-      }
-
-      function setWorkspaceStatus(message: string, kind: "ok" | "error" | "" = ""): void {
-        if (!workspaceStatus) return;
-        workspaceStatus.textContent = message;
-        workspaceStatus.dataset.kind = kind;
       }
 
       function parseYouTubeId(value: string): string | null {
@@ -216,133 +166,16 @@ import "../styles/global.css";
         return match ? match[1] : null;
       }
 
-      function encodeBase64(text: string): string {
-        const bytes = new TextEncoder().encode(text);
-        let binary = "";
-        for (const byte of bytes) binary += String.fromCharCode(byte);
-        return btoa(binary);
-      }
-
-      function decodeBase64(value: string): string {
-        const binary = atob(value.replace(/\s/g, ""));
-        const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
-        return new TextDecoder().decode(bytes);
-      }
-
-      function filePath(): string {
-        if (!config) return "";
-        return config.path
-          .split("/")
-          .filter(Boolean)
-          .map(encodeURIComponent)
-          .join("/");
-      }
-
-      async function github(path: string, init: RequestInit = {}): Promise<Response> {
-        const headers = new Headers(init.headers);
-        headers.set("Authorization", `Bearer ${token}`);
-        headers.set("Accept", "application/vnd.github+json");
-        headers.set("X-GitHub-Api-Version", "2022-11-28");
-        if (init.body) headers.set("Content-Type", "application/json");
-
-        return fetch(`https://api.github.com${path}`, { ...init, headers });
-      }
-
-      async function readError(response: Response): Promise<string> {
+      function persist(): void {
         try {
-          const data = await response.json();
-          return data.message || `GitHub returned ${response.status}`;
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(videos));
         } catch {
-          return `GitHub returned ${response.status}`;
+          // storage can be unavailable; the download still works
         }
       }
 
-      async function loadVideos(): Promise<void> {
-        if (!config) throw new Error("Not connected");
-        const path = `/repos/${config.owner}/${config.repo}/contents/${filePath()}?ref=${encodeURIComponent(
-          config.branch,
-        )}`;
-        const response = await github(path);
-
-        if (response.status === 404) {
-          const repoCheck = await github(`/repos/${config.owner}/${config.repo}`);
-          if (!repoCheck.ok) {
-            throw new Error("Repository not found, or the token has no access to it");
-          }
-          videos = [];
-          sha = null;
-          return;
-        }
-        if (!response.ok) throw new Error(await readError(response));
-
-        const data = await response.json();
-        sha = data.sha;
-        const parsed = JSON.parse(decodeBase64(data.content));
-        videos = Array.isArray(parsed)
-          ? parsed.filter(
-              (item): item is Video =>
-                item && typeof item.id === "string" && typeof item.title === "string",
-            )
-          : [];
-      }
-
-      async function commit(message: string): Promise<string> {
-        if (!config) throw new Error("Not connected");
-        const body: Record<string, unknown> = {
-          message,
-          content: encodeBase64(`${JSON.stringify(videos, null, 2)}\n`),
-          branch: config.branch,
-        };
-        if (sha) body.sha = sha;
-
-        const response = await github(
-          `/repos/${config.owner}/${config.repo}/contents/${filePath()}`,
-          { method: "PUT", body: JSON.stringify(body) },
-        );
-        if (!response.ok) throw new Error(await readError(response));
-
-        const data = await response.json();
-        sha = data.content?.sha || sha;
-        return data.commit?.html_url || "";
-      }
-
-      function setBusy(value: boolean): void {
-        busy = value;
-        document.querySelectorAll<HTMLButtonElement>(".admin-btn").forEach((button) => {
-          if (button.dataset.disconnect === undefined) button.disabled = value;
-        });
-      }
-
-      async function save(message: string): Promise<boolean> {
-        if (busy) return false;
-        setBusy(true);
-        setWorkspaceStatus("Saving…");
-        try {
-          const url = await commit(message);
-          setWorkspaceStatus("Saved. Vercel will rebuild in a moment.", "ok");
-          if (url && workspaceStatus) {
-            workspaceStatus.append(" ");
-            const link = document.createElement("a");
-            link.href = url;
-            link.target = "_blank";
-            link.rel = "noopener";
-            link.textContent = "View commit ↗";
-            workspaceStatus.append(link);
-          }
-          render();
-          return true;
-        } catch (error) {
-          setWorkspaceStatus(`Save failed: ${(error as Error).message}`, "error");
-          try {
-            await loadVideos();
-            render();
-          } catch {
-            // leave the list as-is if the resync also fails
-          }
-          return false;
-        } finally {
-          setBusy(false);
-        }
+      function json(): string {
+        return `${JSON.stringify(videos, null, 2)}\n`;
       }
 
       function render(): void {
@@ -390,9 +223,10 @@ import "../styles/global.css";
           up.title = "Move up";
           up.disabled = index === 0;
           up.addEventListener("click", () => {
-            if (busy || index === 0) return;
+            if (index === 0) return;
             [videos[index - 1], videos[index]] = [videos[index], videos[index - 1]];
-            void save(`Reorder videos (admin)`);
+            persist();
+            render();
           });
 
           const down = document.createElement("button");
@@ -402,9 +236,10 @@ import "../styles/global.css";
           down.title = "Move down";
           down.disabled = index === videos.length - 1;
           down.addEventListener("click", () => {
-            if (busy || index === videos.length - 1) return;
+            if (index === videos.length - 1) return;
             [videos[index + 1], videos[index]] = [videos[index], videos[index + 1]];
-            void save(`Reorder videos (admin)`);
+            persist();
+            render();
           });
 
           const remove = document.createElement("button");
@@ -413,10 +248,10 @@ import "../styles/global.css";
           remove.textContent = "×";
           remove.title = "Remove";
           remove.addEventListener("click", () => {
-            if (busy) return;
-            if (!window.confirm(`Remove “${video.title}” from the site?`)) return;
+            if (!window.confirm(`Remove “${video.title}” from the list?`)) return;
             videos.splice(index, 1);
-            void save(`Remove video: ${video.title}`);
+            persist();
+            render();
           });
 
           actions.append(up, down, remove);
@@ -425,104 +260,36 @@ import "../styles/global.css";
         });
       }
 
-      function showWorkspace(): void {
-        if (setup) setup.hidden = true;
-        if (workspace) workspace.hidden = false;
-        if (repoInfo && config) {
-          repoInfo.textContent = `${config.owner}/${config.repo} · ${config.branch} · ${config.path}`;
-        }
-        render();
+      function download(): void {
+        const blob = new Blob([json()], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement("a");
+        anchor.href = url;
+        anchor.download = "videos.json";
+        document.body.append(anchor);
+        anchor.click();
+        anchor.remove();
+        URL.revokeObjectURL(url);
+        setStatus("Downloaded. Replace src/data/videos.json with this file and commit it.", "ok");
       }
 
-      function persist(): void {
-        if (!config) return;
-        localStorage.setItem(CFG_KEY, JSON.stringify(config));
+      $("[data-download]")?.addEventListener("click", download);
 
-        const remember = Boolean(rememberInput?.checked);
-        if (remember) {
-          localStorage.setItem(TOKEN_KEY, token);
-          sessionStorage.removeItem(TOKEN_KEY);
-        } else {
-          sessionStorage.setItem(TOKEN_KEY, token);
-          localStorage.removeItem(TOKEN_KEY);
-        }
-      }
-
-      function restore(): void {
+      $("[data-copy]")?.addEventListener("click", async () => {
         try {
-          const stored = localStorage.getItem(CFG_KEY);
-          if (stored) {
-            const parsed = JSON.parse(stored) as Partial<Config>;
-            config = {
-              owner: parsed.owner || "",
-              repo: parsed.repo || "",
-              branch: parsed.branch || "main",
-              path: parsed.path || "src/data/videos.json",
-            };
-          }
-          token =
-            localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY) || "";
+          await navigator.clipboard.writeText(json());
+          setStatus("Copied the JSON to your clipboard.", "ok");
         } catch {
-          config = null;
-          token = "";
+          setStatus("Could not copy. Use the download button instead.", "error");
         }
+      });
 
-        if (ownerInput) ownerInput.value = config?.owner || "luisfelipehernandezmora";
-        if (repoInput) repoInput.value = config?.repo || "luishernandezmora";
-        if (branchInput) branchInput.value = config?.branch || "main";
-        if (pathInput) pathInput.value = config?.path || "src/data/videos.json";
-        if (tokenInput) tokenInput.value = token;
-        if (rememberInput) rememberInput.checked = Boolean(localStorage.getItem(TOKEN_KEY));
-      }
-
-      async function connect(): Promise<void> {
-        const next: Config = {
-          owner: ownerInput?.value.trim() || "",
-          repo: repoInput?.value.trim() || "",
-          branch: branchInput?.value.trim() || "main",
-          path: pathInput?.value.trim() || "src/data/videos.json",
-        };
-        const nextToken = tokenInput?.value.trim() || "";
-
-        if (!next.owner || !next.repo) {
-          setStatus("Enter the repository owner and name.", "error");
-          return;
-        }
-        if (!nextToken) {
-          setStatus("Enter a personal access token.", "error");
-          return;
-        }
-
-        config = next;
-        token = nextToken;
-        persist();
-        setStatus("Connecting…");
-
-        try {
-          await loadVideos();
-          setStatus("");
-          showWorkspace();
-          setWorkspaceStatus(
-            videos.length
-              ? `Connected. ${videos.length} video${videos.length === 1 ? "" : "s"} found.`
-              : "Connected. No videos yet.",
-            "ok",
-          );
-        } catch (error) {
-          setStatus(
-            `Could not connect: ${(error as Error).message}. Check the repository and token permissions.`,
-            "error",
-          );
-        }
-      }
-
-      $("[data-connect]")?.addEventListener("click", () => void connect());
-
-      $("[data-disconnect]")?.addEventListener("click", () => {
-        localStorage.removeItem(CFG_KEY);
-        localStorage.removeItem(TOKEN_KEY);
-        sessionStorage.removeItem(TOKEN_KEY);
-        window.location.reload();
+      $("[data-reset]")?.addEventListener("click", () => {
+        if (!window.confirm("Reset to the videos currently published on the site?")) return;
+        videos = initialVideos.slice();
+        localStorage.removeItem(STORAGE_KEY);
+        render();
+        setStatus("Reset to the published list.", "ok");
       });
 
       urlInput?.addEventListener("input", () => {
@@ -544,49 +311,36 @@ import "../styles/global.css";
 
       addForm?.addEventListener("submit", (event) => {
         event.preventDefault();
-        if (busy) return;
 
         const id = parseYouTubeId(urlInput?.value || "");
         const title = titleInput?.value.trim() || "";
 
         if (!id) {
-          setWorkspaceStatus("That does not look like a YouTube URL.", "error");
+          setStatus("That does not look like a YouTube URL.", "error");
           return;
         }
         if (!title) {
-          setWorkspaceStatus("Give the video a title.", "error");
+          setStatus("Give the video a title.", "error");
           return;
         }
 
         const label = labelInput?.value.trim();
         videos.push({ id, title, ...(label ? { label } : {}) });
+        persist();
+        render();
 
-        void (async () => {
-          const saved = await save(`Add video: ${title}`);
-          if (!saved) return;
-          if (urlInput) urlInput.value = "";
-          if (titleInput) titleInput.value = "";
-          if (labelInput) labelInput.value = "";
-          if (preview) preview.hidden = true;
-        })();
+        if (urlInput) urlInput.value = "";
+        if (titleInput) titleInput.value = "";
+        if (labelInput) labelInput.value = "";
+        if (preview) preview.hidden = true;
+
+        setStatus("Added. Download the file when you are ready to publish.", "ok");
       });
 
-      restore();
+      render();
 
-      if (config && token) {
-        setStatus("Restoring your session…");
-        void loadVideos()
-          .then(() => {
-            setStatus("");
-            showWorkspace();
-            setWorkspaceStatus("Connected.", "ok");
-          })
-          .catch((error) => {
-            setStatus(
-              `Session expired: ${(error as Error).message}. Reconnect with a valid token.`,
-              "error",
-            );
-          });
+      if (loadedFromStorage) {
+        setStatus("Loaded your local edits. Download the file to publish them.", "");
       }
     </script>
 
@@ -617,7 +371,7 @@ import "../styles/global.css";
 
       .admin__lede {
         margin-top: 14px;
-        max-width: 60ch;
+        max-width: 62ch;
         color: var(--ink-dim);
         font-size: 0.96rem;
       }
@@ -650,19 +404,6 @@ import "../styles/global.css";
         margin-bottom: 0;
       }
 
-      .admin-card__note {
-        margin: 8px 0 18px;
-        max-width: 64ch;
-        color: var(--ink-faint);
-        font-size: 0.88rem;
-        line-height: 1.65;
-      }
-
-      .admin-card__note strong {
-        color: var(--ink-dim);
-        font-weight: 500;
-      }
-
       .admin-grid {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -678,10 +419,6 @@ import "../styles/global.css";
 
       .admin-grid .admin-field {
         margin-top: 0;
-      }
-
-      .admin-field--wide {
-        margin-top: 16px;
       }
 
       .admin-field label {
@@ -718,51 +455,6 @@ import "../styles/global.css";
         opacity: 0.6;
       }
 
-      .admin-row {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        justify-content: space-between;
-        gap: 16px;
-        margin-top: 18px;
-      }
-
-      .admin-row__actions {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        flex-wrap: wrap;
-      }
-
-      .admin-check {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        font-family: var(--mono);
-        font-size: 10px;
-        letter-spacing: 0.05em;
-        color: var(--ink-faint);
-        cursor: pointer;
-      }
-
-      .admin-check input {
-        accent-color: var(--amber);
-      }
-
-      .admin-link {
-        font-family: var(--mono);
-        font-size: 10px;
-        letter-spacing: 0.06em;
-        color: var(--ink-dim);
-        border-bottom: 1px solid var(--rule-strong);
-        padding-bottom: 2px;
-      }
-
-      .admin-link:hover {
-        color: var(--amber);
-        border-color: var(--amber);
-      }
-
       .admin-btn {
         padding: 10px 16px;
         background: transparent;
@@ -777,15 +469,10 @@ import "../styles/global.css";
           border-color 0.25s var(--ease);
       }
 
-      .admin-btn:hover:not(:disabled) {
+      .admin-btn:hover {
         color: var(--ink);
         border-color: rgba(217, 154, 78, 0.55);
         background: var(--amber-wash);
-      }
-
-      .admin-btn:disabled {
-        opacity: 0.45;
-        cursor: default;
       }
 
       .admin-btn--primary {
@@ -795,58 +482,10 @@ import "../styles/global.css";
         font-weight: 500;
       }
 
-      .admin-btn--primary:hover:not(:disabled) {
+      .admin-btn--primary:hover {
         background: var(--amber-bright);
         border-color: var(--amber-bright);
         color: #130f09;
-      }
-
-      .admin-status {
-        min-height: 18px;
-        margin-top: 14px;
-        font-family: var(--mono);
-        font-size: 10.5px;
-        line-height: 1.7;
-        letter-spacing: 0.03em;
-        color: var(--ink-faint);
-      }
-
-      .admin-status[data-kind="ok"] {
-        color: var(--sage);
-      }
-
-      .admin-status[data-kind="error"] {
-        color: var(--clay);
-      }
-
-      .admin-status a {
-        color: var(--amber);
-        border-bottom: 1px solid rgba(217, 154, 78, 0.4);
-      }
-
-      .admin-workspace {
-        margin-top: 26px;
-      }
-
-      .admin-bar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 16px;
-        padding-bottom: 14px;
-        border-bottom: 1px solid var(--rule);
-      }
-
-      .admin-repo {
-        font-family: var(--mono);
-        font-size: 10px;
-        letter-spacing: 0.05em;
-        color: var(--ink-faint);
-        overflow-wrap: anywhere;
-      }
-
-      .admin-form {
-        margin-top: 14px;
       }
 
       .admin-field--submit {
@@ -969,6 +608,53 @@ import "../styles/global.css";
         font-size: 10.5px;
         color: var(--ink-faint);
         border-top: 1px solid var(--rule);
+      }
+
+      .admin-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 20px;
+      }
+
+      .admin-status {
+        min-height: 18px;
+        margin-top: 14px;
+        font-family: var(--mono);
+        font-size: 10.5px;
+        line-height: 1.7;
+        letter-spacing: 0.03em;
+        color: var(--ink-faint);
+      }
+
+      .admin-status[data-kind="ok"] {
+        color: var(--sage);
+      }
+
+      .admin-status[data-kind="error"] {
+        color: var(--clay);
+      }
+
+      .admin-note {
+        margin-top: 28px;
+        padding-top: 18px;
+        border-top: 1px solid var(--rule);
+        display: grid;
+        gap: 6px;
+      }
+
+      .admin-note p {
+        font-family: var(--mono);
+        font-size: 10px;
+        line-height: 1.8;
+        letter-spacing: 0.02em;
+        color: var(--ink-faint);
+      }
+
+      .admin-note code {
+        color: var(--ink-dim);
+        font-family: var(--mono);
+        font-size: 10px;
       }
 
       @media (max-width: 640px) {
