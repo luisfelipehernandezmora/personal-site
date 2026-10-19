@@ -5,18 +5,18 @@ interface Point {
   y: number;
 }
 
-interface Link {
+interface Trace {
   el: SVGPathElement;
-  a: number;
-  b: number;
+  length: number;
 }
 
 interface Pulse {
   el: SVGCircleElement;
-  path: SVGPathElement;
+  trace: Trace;
   start: number;
   duration: number;
-  forward: boolean;
+  from: number;
+  to: number;
 }
 
 export function mountContactNet(): void {
@@ -29,8 +29,10 @@ export function mountContactNet(): void {
 
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  let links: Link[] = [];
+  let traces: Trace[] = [];
   let pulses: Pulse[] = [];
+  let centers: Point[] = [];
+  let sourceEl: SVGCircleElement | null = null;
   let raf = 0;
   let activeIndex = -1;
   let leaveTimer = 0;
@@ -58,6 +60,7 @@ export function mountContactNet(): void {
     svg!.replaceChildren();
 
     const defs = make("defs");
+
     const filter = make("filter", {
       id: "contactNetGlow",
       x: "-200%",
@@ -65,7 +68,7 @@ export function mountContactNet(): void {
       width: "500%",
       height: "500%",
     });
-    filter.append(make("feGaussianBlur", { stdDeviation: "2.2", result: "blur" }));
+    filter.append(make("feGaussianBlur", { stdDeviation: "2", result: "blur" }));
     const merge = make("feMerge");
     merge.append(
       make("feMergeNode", { in: "blur" }),
@@ -74,7 +77,15 @@ export function mountContactNet(): void {
     filter.append(merge);
     defs.append(filter);
 
-    const centers: Point[] = cards.map((card) => {
+    const glow = make("radialGradient", { id: "contactSourceGlow" });
+    glow.append(
+      make("stop", { offset: "0%", "stop-color": "rgba(240,185,104,0.42)" }),
+      make("stop", { offset: "45%", "stop-color": "rgba(240,185,104,0.16)" }),
+      make("stop", { offset: "100%", "stop-color": "rgba(240,185,104,0)" }),
+    );
+    defs.append(glow);
+
+    centers = cards.map((card) => {
       const r = card.getBoundingClientRect();
       return {
         x: r.left - rect.left + r.width / 2,
@@ -82,46 +93,85 @@ export function mountContactNet(): void {
       };
     });
 
+    const sourceRadius = Math.min(190, Math.max(110, Math.min(width, height) * 0.36));
+    sourceEl = make("circle", {
+      class: "net-source",
+      cx: width / 2,
+      cy: height / 2,
+      r: sourceRadius,
+      fill: "url(#contactSourceGlow)",
+    });
+
     const deco = make("g", {
-      stroke: "rgba(236,231,221,0.09)",
+      stroke: "rgba(236,231,221,0.075)",
       "stroke-width": "1",
       fill: "none",
       "stroke-linecap": "round",
       "stroke-linejoin": "round",
     });
 
-    centers.forEach((center, index) => {
-      const top = index < 2;
-      const left = index % 2 === 0;
-      const edgeX = left ? 7 : width - 7;
-      const edgeY = top ? 7 : height - 7;
-      const d = `M ${center.x} ${center.y} H ${
-        left ? center.x - 28 : center.x + 28
-      } V ${edgeY} H ${edgeX}`;
-      deco.append(make("path", { d }));
-      deco.append(
-        make("circle", {
-          cx: edgeX,
-          cy: edgeY,
-          r: 2,
-          fill: "rgba(236,231,221,0.2)",
-          stroke: "none",
-        }),
+    deco.append(
+      make("rect", {
+        x: 6,
+        y: 6,
+        width: width - 12,
+        height: height - 12,
+        rx: 8,
+      }),
+    );
+    deco.append(make("path", { d: `M 12 26 L 30 8 H 54` }));
+    deco.append(make("path", { d: `M ${width - 12} ${height - 26} L ${width - 30} ${height - 8} H ${width - 54}` }));
+    deco.append(make("path", { d: `M ${width - 12} 26 L ${width - 30} 8 H ${width - 54}` }));
+    deco.append(make("path", { d: `M 12 ${height - 26} L 30 ${height - 8} H 54` }));
+
+    const inner = 10;
+    const traceDefs: string[] = [];
+    const pads: Point[] = [];
+
+    const hCount = 8;
+    for (let i = 0; i < hCount; i++) {
+      const y = 12 + ((height - 24) * (i + 0.5)) / hCount;
+      const a = width * (0.16 + (i % 3) * 0.08);
+      const b = width * (0.56 + (i % 2) * 0.09);
+      const jog = 8;
+      traceDefs.push(
+        `M ${inner} ${y} H ${a} L ${a + jog} ${y + jog} H ${b} L ${b + jog} ${y} H ${
+          width - inner
+        }`,
       );
-    });
+      if (i % 2 === 0) {
+        pads.push({ x: a + jog, y: y + jog }, { x: b, y: y + jog });
+      }
+    }
 
-    const gapY = centers[0].y + (centers[2].y - centers[0].y) / 2;
-    deco.append(make("path", { d: `M 8 ${gapY} H ${width - 8}` }));
-    deco.append(make("path", { d: `M ${width / 2} 8 V ${height - 8}` }));
+    const vCount = 6;
+    for (let i = 0; i < vCount; i++) {
+      const x = 12 + ((width - 24) * (i + 0.5)) / vCount;
+      const a = height * (0.18 + (i % 3) * 0.1);
+      const b = height * (0.58 + (i % 2) * 0.08);
+      const jog = 8;
+      traceDefs.push(
+        `M ${x} ${inner} V ${a} L ${x + jog} ${a + jog} V ${b} L ${x} ${
+          b + jog
+        } V ${height - inner}`,
+      );
+      if (i % 2 === 0) {
+        pads.push({ x: x + jog, y: a + jog }, { x: x, y: b + jog });
+      }
+    }
 
-    for (let i = 1; i <= 3; i++) {
-      const y = gapY - i * 5;
-      deco.append(make("path", { d: `M 18 ${y} H ${width * 0.34}` }));
-      deco.append(make("path", { d: `M ${width * 0.66} ${y} H ${width - 18}` }));
+    for (let a = 0; a < centers.length; a++) {
+      for (let b = a + 1; b < centers.length; b++) {
+        const start = centers[a];
+        const end = centers[b];
+        const offset = b % 2 === 0 ? 12 : -12;
+        const midX = (start.x + end.x) / 2 + offset;
+        traceDefs.push(`M ${start.x} ${start.y} H ${midX} V ${end.y} H ${end.x}`);
+      }
     }
 
     const base = make("g", {
-      stroke: "rgba(236,231,221,0.13)",
+      stroke: "rgba(236,231,221,0.125)",
       "stroke-width": "1",
       fill: "none",
       "stroke-linecap": "round",
@@ -136,25 +186,21 @@ export function mountContactNet(): void {
       "stroke-linejoin": "round",
     });
 
-    links = [];
-    for (let a = 0; a < centers.length; a++) {
-      for (let b = a + 1; b < centers.length; b++) {
-        const start = centers[a];
-        const end = centers[b];
-        const offset = b % 3 === 0 ? 14 : -14;
-        const midX = (start.x + end.x) / 2 + offset;
-        const d = `M ${start.x} ${start.y} H ${midX} V ${end.y} H ${end.x}`;
-        base.append(make("path", { d }));
-        const litPath = make("path", { d });
-        lit.append(litPath);
-        links.push({ el: litPath, a, b });
-      }
+    const litPaths: SVGPathElement[] = [];
+    for (const d of traceDefs) {
+      base.append(make("path", { d }));
+      const litPath = make("path", { d });
+      lit.append(litPath);
+      litPaths.push(litPath);
     }
 
-    const pads = make("g", { fill: "rgba(236,231,221,0.2)" });
-    pads.append(make("circle", { cx: width / 2, cy: gapY, r: 2.4 }));
-    pads.append(make("circle", { cx: width / 2, cy: 8, r: 1.8 }));
-    pads.append(make("circle", { cx: width / 2, cy: height - 8, r: 1.8 }));
+    const padsBase = make("g", { fill: "rgba(236,231,221,0.2)" });
+    const padsLit = make("g", { fill: "#f0b968" });
+    pads.forEach((pad) => {
+      padsBase.append(make("circle", { cx: pad.x, cy: pad.y, r: 1.7 }));
+      padsLit.append(make("circle", { cx: pad.x, cy: pad.y, r: 1.7 }));
+    });
+    lit.append(padsLit);
 
     const pulseLayer = make("g", {
       class: "net-pulses",
@@ -162,7 +208,10 @@ export function mountContactNet(): void {
       "aria-hidden": "true",
     });
 
-    svg!.append(defs, deco, base, lit, pads, pulseLayer);
+    svg!.append(defs, sourceEl, deco, base, lit, padsBase, pulseLayer);
+
+    traces = litPaths.map((el) => ({ el, length: el.getTotalLength() }));
+
     pulses = [];
     activeIndex = -1;
     container!.classList.remove("is-active");
@@ -180,6 +229,30 @@ export function mountContactNet(): void {
   const easeInOut = (t: number): number =>
     t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
 
+  function addPulse(trace: Trace, start: number, from: number, to: number): void {
+    const layer = svg!.querySelector(".net-pulses");
+    if (!layer) return;
+
+    const circle = make("circle", {
+      cx: -10,
+      cy: -10,
+      r: 2.4,
+      fill: "#f0b968",
+      opacity: "0",
+    });
+    layer.append(circle);
+
+    const distance = Math.abs(to - from);
+    pulses.push({
+      el: circle,
+      trace,
+      start,
+      duration: Math.min(1500, 340 + distance * 0.8),
+      from,
+      to,
+    });
+  }
+
   function tick(now: number): void {
     let alive = false;
 
@@ -191,11 +264,9 @@ export function mountContactNet(): void {
       }
 
       const t = Math.min(1, elapsed / pulse.duration);
-      const length = pulse.path.getTotalLength();
       const eased = easeInOut(t);
-      const point = pulse.path.getPointAtLength(
-        pulse.forward ? length * eased : length * (1 - eased),
-      );
+      const position = pulse.from + (pulse.to - pulse.from) * eased;
+      const point = pulse.trace.el.getPointAtLength(position);
 
       pulse.el.setAttribute("cx", String(point.x));
       pulse.el.setAttribute("cy", String(point.y));
@@ -211,36 +282,64 @@ export function mountContactNet(): void {
     }
   }
 
+  function nearestPoint(
+    trace: Trace,
+    x: number,
+    y: number,
+  ): { at: number; distance: number } {
+    const steps = 24;
+    let bestAt = 0;
+    let bestDistance = Infinity;
+
+    for (let i = 0; i <= steps; i++) {
+      const at = (trace.length * i) / steps;
+      const point = trace.el.getPointAtLength(at);
+      const distance = Math.hypot(point.x - x, point.y - y);
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        bestAt = at;
+      }
+    }
+
+    return { at: bestAt, distance: bestDistance };
+  }
+
   function activate(index: number): void {
     activeIndex = index;
     window.clearTimeout(leaveTimer);
     container!.classList.add("is-active");
 
-    if (reduced) return;
+    const center = centers[index];
+    if (sourceEl && center) {
+      sourceEl.setAttribute("cx", String(center.x));
+      sourceEl.setAttribute("cy", String(center.y));
+    }
+
+    if (reduced || !center) return;
 
     clearPulses();
-    const layer = svg!.querySelector(".net-pulses");
-    if (!layer) return;
 
-    const connected = links.filter((link) => link.a === index || link.b === index);
-    const startBase = performance.now() + 60;
+    const candidates = traces
+      .map((trace) => ({
+        trace,
+        ...nearestPoint(trace, center.x, center.y),
+      }))
+      .filter((item) => item.distance < 340)
+      .sort((a, b) => a.distance - b.distance)
+      .slice(0, 20);
 
-    connected.forEach((link, order) => {
-      const circle = make("circle", {
-        cx: -10,
-        cy: -10,
-        r: 2.6,
-        fill: "#f0b968",
-        opacity: "0",
-      });
-      layer.append(circle);
-      pulses.push({
-        el: circle,
-        path: link.el,
-        start: startBase + order * 90,
-        duration: 820,
-        forward: link.a === index,
-      });
+    const baseStart = performance.now() + 50;
+
+    candidates.forEach((candidate) => {
+      const start = baseStart + candidate.distance * 0.85;
+      const length = candidate.trace.length;
+
+      if (candidate.at > 30) {
+        addPulse(candidate.trace, start, candidate.at, 0);
+      }
+      if (length - candidate.at > 30) {
+        addPulse(candidate.trace, start, candidate.at, length);
+      }
     });
 
     if (pulses.length) raf = requestAnimationFrame(tick);

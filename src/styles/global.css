@@ -634,11 +634,6 @@ p {
   width: 44px;
   z-index: 0;
   pointer-events: none;
-  transition: opacity 0.6s var(--ease);
-}
-
-.footprints.is-idle {
-  opacity: 0;
 }
 
 .foot {
@@ -650,7 +645,7 @@ p {
   transform: rotate(var(--rot));
   transform-origin: center;
   filter: drop-shadow(0 0 3px rgba(217, 154, 78, 0.28));
-  transition: opacity 0.3s linear;
+  transition: opacity 0.6s var(--ease);
 }
 
 .path-group {
@@ -1027,10 +1022,10 @@ p {
 .contact-cards {
   position: relative;
   margin-top: 34px;
-  padding: 18px;
+  padding: 26px;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
+  gap: 20px;
   isolation: isolate;
 }
 
@@ -1050,7 +1045,16 @@ p {
 }
 
 .contact-cards.is-active .contact-net .net-lit {
-  opacity: 0.55;
+  opacity: 0.32;
+}
+
+.contact-net .net-source {
+  opacity: 0;
+  transition: opacity 0.5s var(--ease);
+}
+
+.contact-cards.is-active .contact-net .net-source {
+  opacity: 1;
 }
 
 .contact-card {
@@ -1062,7 +1066,7 @@ p {
   min-height: 154px;
   padding: 17px 18px 16px;
   border: 1px solid var(--rule);
-  background: rgba(15, 15, 17, 0.9);
+  background: rgba(14, 14, 16, 0.84);
   color: var(--ink);
   transition: border-color 0.35s var(--ease), background 0.35s var(--ease),
     box-shadow 0.35s var(--ease);
@@ -1071,7 +1075,7 @@ p {
 .contact-card:hover,
 .contact-card:focus-visible {
   border-color: rgba(217, 154, 78, 0.48);
-  background: rgba(20, 20, 23, 0.96);
+  background: rgba(20, 20, 23, 0.95);
   box-shadow:
     0 0 0 1px rgba(217, 154, 78, 0.08),
     0 22px 50px -36px rgba(217, 154, 78, 0.45);
@@ -1564,7 +1568,7 @@ p {
   .contact-cards {
     grid-template-columns: 1fr;
     gap: 14px;
-    padding: 14px;
+    padding: 16px;
   }
 
   .contact-card {

@@ -399,7 +399,7 @@ const footprints = Array.from({ length: 34 }, (_, i) => {
   <footer class="site-footer">
     <div class="shell site-footer__inner">
       <span>© {year} {site.name}</span>
-      <span>{site.location} · Built with Astro, deployed on Vercel</span>
+      <span>{site.location}</span>
       <a href="#top">Back to top ↑</a>
     </div>
   </footer>
@@ -429,7 +429,6 @@ const footprints = Array.from({ length: 34 }, (_, i) => {
     }
 
     const prints = Array.from(document.querySelectorAll<SVGElement>(".foot"));
-    const footprintLayer = document.querySelector<HTMLElement>(".footprints");
 
     if (prints.length) {
       if (reduce) {
@@ -437,6 +436,7 @@ const footprints = Array.from({ length: 34 }, (_, i) => {
       } else {
         let ticking = false;
         let idleTimer = 0;
+        const idleTimers: number[] = [];
 
         const updatePrints = () => {
           ticking = false;
@@ -453,12 +453,36 @@ const footprints = Array.from({ length: 34 }, (_, i) => {
           }
         };
 
-        const wake = () => {
-          footprintLayer?.classList.remove("is-idle");
+        const clearIdle = () => {
           window.clearTimeout(idleTimer);
-          idleTimer = window.setTimeout(() => {
-            footprintLayer?.classList.add("is-idle");
-          }, 1400);
+          while (idleTimers.length) {
+            window.clearTimeout(idleTimers.pop());
+          }
+        };
+
+        const dissolve = () => {
+          const vh = window.innerHeight;
+          const visible = prints
+            .map((el) => ({
+              el,
+              top: el.getBoundingClientRect().top,
+              opacity: parseFloat(el.style.opacity || "0"),
+            }))
+            .filter((item) => item.opacity > 0.02 && item.top < vh)
+            .sort((a, b) => b.top - a.top);
+
+          visible.forEach((item, index) => {
+            idleTimers.push(
+              window.setTimeout(() => {
+                item.el.style.opacity = "0";
+              }, index * 110),
+            );
+          });
+        };
+
+        const wake = () => {
+          clearIdle();
+          idleTimer = window.setTimeout(dissolve, 1400);
         };
 
         const onScroll = () => {
