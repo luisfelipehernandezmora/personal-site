@@ -87,7 +87,7 @@ const footprints = Array.from({ length: 34 }, (_, i) => {
 
         <a class="hero__scroll" href="#about">
           <span class="rule" aria-hidden="true"></span>
-          <span>Position</span>
+          <span>Interests</span>
         </a>
       </section>
 
@@ -95,8 +95,6 @@ const footprints = Array.from({ length: 34 }, (_, i) => {
 
       <div class="rest">
         <section class="section" id="about">
-          <div class="eyebrow"><span style="color:var(--amber)">01</span><span>Position</span></div>
-
           <div class="interests reveal">
             <p class="interests__label">Interests</p>
             <ul class="interests__list">
@@ -147,8 +145,8 @@ const footprints = Array.from({ length: 34 }, (_, i) => {
             <span class="section__index">03</span>
             <h2 class="section__title">Path</h2>
             <p class="section__note">
-              Structural engineering, teaching, data pipelines, and now agents. The through-line
-              is systems that have to work when someone is depending on them.
+              Structural engineering, teaching, data pipelines, and now agents. Open either
+              group for the details.
             </p>
           </div>
 
@@ -167,11 +165,13 @@ const footprints = Array.from({ length: 34 }, (_, i) => {
               ))}
             </div>
 
-            <div class="path-group">
-              <p class="path-group__label">
+            <details class="path-group" data-path-details>
+              <summary class="path-group__summary">
                 <span class="path-group__mark path-group__mark--work" aria-hidden="true"></span>
-                Work
-              </p>
+                <span class="path-group__name">Work</span>
+                <span class="path-group__count">{roles.length} roles</span>
+                <span class="path-group__toggle" aria-hidden="true"></span>
+              </summary>
               <div class="timeline">
                 {roles.map((e, i) => (
                   <div class="tl-row tl-row--work reveal" style={`--d:${i * 40}ms`}>
@@ -187,13 +187,15 @@ const footprints = Array.from({ length: 34 }, (_, i) => {
                   </div>
                 ))}
               </div>
-            </div>
+            </details>
 
-            <div class="path-group">
-              <p class="path-group__label">
+            <details class="path-group" data-path-details>
+              <summary class="path-group__summary">
                 <span class="path-group__mark path-group__mark--study" aria-hidden="true"></span>
-                Education
-              </p>
+                <span class="path-group__name">Education</span>
+                <span class="path-group__count">{studies.length} entries</span>
+                <span class="path-group__toggle" aria-hidden="true"></span>
+              </summary>
               <div class="timeline">
                 {studies.map((e, i) => (
                   <div class="tl-row tl-row--study reveal" style={`--d:${i * 40}ms`}>
@@ -209,7 +211,7 @@ const footprints = Array.from({ length: 34 }, (_, i) => {
                   </div>
                 ))}
               </div>
-            </div>
+            </details>
           </div>
         </section>
 
@@ -583,5 +585,16 @@ const footprints = Array.from({ length: 34 }, (_, i) => {
         wake();
       }
     }
+
+    document.querySelectorAll<HTMLDetailsElement>("[data-path-details]").forEach((details) => {
+      details.addEventListener("toggle", () => {
+        if (!details.open) return;
+        details.querySelectorAll(".reveal").forEach((el) => el.classList.add("in"));
+        requestAnimationFrame(() => {
+          window.dispatchEvent(new Event("scroll"));
+          window.setTimeout(() => window.dispatchEvent(new Event("scroll")), 90);
+        });
+      });
+    });
   </script>
 </Base>
