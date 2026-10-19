@@ -11,13 +11,6 @@ export const site = {
   },
 };
 
-export const metrics = [
-  { value: "40", unit: "×", label: "Faster generation", note: "600s → 15s" },
-  { value: "60", unit: "%", label: "Lower cost", note: "prompt caching" },
-  { value: "50", unit: "+", label: "Typed MCP tools", note: "in production" },
-  { value: "1,000", unit: "+", label: "Automated tests", note: "acceptance sampling" },
-];
-
 export const work = [
   {
     num: "01",
@@ -49,7 +42,7 @@ export const work = [
   },
 ];
 
-export const experience = [
+export const roles = [
   {
     when: "2025 — now",
     role: "AI Product & Application Engineer",
@@ -71,12 +64,15 @@ export const experience = [
     desc: "Directed delivery of a 1,800 m², three-storey residential complex — municipal permissions, budget engineering, and technical compliance.",
     note: "San José, Costa Rica",
   },
+];
+
+export const studies = [
   {
-    when: "2011 — 2018",
-    role: "Licentiate in Civil Engineering",
-    org: "Universidad de Costa Rica",
-    desc: "Graduated with a perfect 100/100 thesis defense on multivariate stress models. Coursework in linear algebra, calculus, and numerical methods.",
-    note: "Thesis: 100/100",
+    when: "2026",
+    role: "Deep Learning Specialization",
+    org: "DeepLearning.AI · Coursera",
+    desc: "Neural networks, optimization algorithms, and structuring machine learning projects.",
+    note: "In progress",
   },
   {
     when: "2021 — 2022",
@@ -86,28 +82,10 @@ export const experience = [
     note: "Program",
   },
   {
-    when: "2026",
-    role: "Deep Learning Specialization",
-    org: "DeepLearning.AI · Coursera",
-    desc: "Neural networks, optimization algorithms, and structuring machine learning projects.",
-    note: "In progress",
-  },
-];
-
-export const videos = [
-  {
-    title: "Why medical AI has to be able to say “I don’t know”",
-    runtime: "Episode 01",
-    status: "In production",
-  },
-  {
-    title: "Agents that ask permission: human-in-the-loop by design",
-    runtime: "Episode 02",
-    status: "In production",
-  },
-  {
-    title: "Testing a model like a structural engineer",
-    runtime: "Episode 03",
-    status: "Planned",
+    when: "2011 — 2018",
+    role: "Licentiate in Civil Engineering",
+    org: "Universidad de Costa Rica",
+    desc: "Graduated with a perfect 100/100 thesis defense on multivariate stress models. Coursework in linear algebra, calculus, and numerical methods.",
+    note: "Thesis: 100/100",
   },
 ];
