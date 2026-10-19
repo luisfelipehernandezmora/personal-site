@@ -1,0 +1,267 @@
+---
+import Base from "../layouts/Base.astro";
+import TetrisPanel from "../components/TetrisPanel.astro";
+import { site, metrics, work, experience, videos } from "../data/site";
+
+const year = new Date().getFullYear();
+const youtube = site.links.youtube;
+---
+
+<Base
+  title="Luis Felipe Hernández Mora — Applied AI Engineer"
+  description="Applied AI engineer in San José, Costa Rica. Agentic systems, evaluation harnesses, and grounded tooling for high-stakes work — with a focus on medicine."
+>
+  <header class="site-header">
+    <div class="shell site-header__inner">
+      <a class="monogram" href="#top">LH — applied ai</a>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="#work">Work</a>
+        <a href="#path">Path</a>
+        <a href="#videos">Videos</a>
+        <a href="#contact">Contact</a>
+        <a class="nav-cta" href={site.links.linkedin} target="_blank" rel="noopener">LinkedIn</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="shell">
+    <div class="page" id="top">
+      <section class="hero">
+        <p class="eyebrow">
+          <span>Applied AI</span>
+          <span class="dot" aria-hidden="true"></span>
+          <span>{site.location}</span>
+        </p>
+
+        <h1 class="display hero__name">
+          <span class="line"><span>Luis Felipe</span></span>
+          <span class="line"><span>Hernández Mora<span style="color:var(--amber)">.</span></span></span>
+        </h1>
+
+        <p class="hero__lede">
+          I build agentic AI systems that hold their ground — they show their sources,
+          measure their own confidence, and hand control back when the stakes are high.
+          The work I care about most is <strong>medicine</strong>.
+        </p>
+
+        <div class="hero__links">
+          <a class="pill-link" href={site.links.linkedin} target="_blank" rel="noopener">
+            LinkedIn <span class="arrow">↗</span>
+          </a>
+          <a class="pill-link" href={site.links.github} target="_blank" rel="noopener">
+            GitHub <span class="arrow">↗</span>
+          </a>
+          <a class="pill-link" href={`mailto:${site.email}`}>
+            Email <span class="arrow">↗</span>
+          </a>
+        </div>
+
+        <a class="hero__scroll" href="#about">
+          <span class="rule" aria-hidden="true"></span>
+          <span>The reasoning</span>
+        </a>
+      </section>
+
+      <TetrisPanel />
+
+      <div class="rest">
+        <section class="section" id="about">
+          <div class="eyebrow"><span style="color:var(--amber)">01</span><span>Position</span></div>
+
+          <p class="thesis__statement reveal">
+            Medicine is where I want this work to <em>land</em> — because that is
+            where a confident wrong answer costs the most.
+          </p>
+
+          <div class="thesis__body">
+            <p class="reveal">
+              I trained as a civil engineer, where a structure is honest: it either carries
+              the load or it does not. That habit followed me into software. Before I trust a
+              model with a decision, I want to know what it was given, what it ignored, and
+              when it should stop.
+            </p>
+            <p class="reveal">
+              In my current work I build production agentic systems — typed tools, approval
+              gates, routing across providers, and evaluation harnesses that make an output
+              accountable. <strong>The architecture is the part that is easy to describe.
+              The hard part is deciding what a system should refuse to do.</strong>
+            </p>
+          </div>
+
+          <div class="pull reveal">
+            <span>//</span> My interest in medicine is not a pivot away from engineering.
+            It is the same question at a higher stake: what does it take to trust a system
+            when being wrong is expensive?
+          </div>
+
+          <div class="metrics reveal">
+            {metrics.map((m) => (
+              <div class="metric">
+                <p class="metric__value">{m.value}<sup>{m.unit}</sup></p>
+                <p class="metric__label">{m.label}<br />{m.note}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section class="section" id="work">
+          <div class="section__head">
+            <span class="section__index">02</span>
+            <h2 class="section__title">Selected work</h2>
+            <p class="section__note">
+              Four systems from the last two years. Each exists because a model could not
+              be trusted to run unsupervised.
+            </p>
+          </div>
+
+          <div class="work-list">
+            {work.map((w, i) => (
+              <article class="work-row reveal" style={`--d:${i * 55}ms`}>
+                <div class="work-row__num">{w.num}</div>
+                <div>
+                  <h3 class="work-row__title">{w.title}</h3>
+                  <p class="work-row__meta">{w.meta}</p>
+                  <p class="work-row__desc">{w.desc}</p>
+                  <div class="work-row__tags">
+                    {w.tags.map((t) => <span class="tag">{t}</span>)}
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section class="section" id="path">
+          <div class="section__head">
+            <span class="section__index">03</span>
+            <h2 class="section__title">Path</h2>
+            <p class="section__note">
+              Structural engineering, teaching, data pipelines, and now agents. The through-line
+              is systems that have to work when someone is depending on them.
+            </p>
+          </div>
+
+          <div class="timeline">
+            {experience.map((e, i) => (
+              <div class="tl-row reveal" style={`--d:${i * 40}ms`}>
+                <div class="tl-row__when">{e.when}</div>
+                <div>
+                  <p class="tl-row__role">{e.role}</p>
+                  <p class="tl-row__org">{e.org}</p>
+                  <p class="tl-row__desc">{e.desc}</p>
+                  <p class="tl-row__note">{e.note}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section class="section" id="videos">
+          <div class="section__head">
+            <span class="section__index">04</span>
+            <h2 class="section__title">On camera</h2>
+            <p class="section__note">
+              Short notes on applied AI — the parts that are hard to write down.
+            </p>
+          </div>
+
+          <div class="video-grid">
+            {videos.map((v, i) => (
+              <article class="video-card reveal" style={`--d:${i * 60}ms`}>
+                <div class="video-card__frame">
+                  <span class="video-card__badge">{v.status}</span>
+                  <span class="play-glyph" aria-hidden="true"></span>
+                </div>
+                <div class="video-card__body">
+                  <h3 class="video-card__title">{v.title}</h3>
+                  <p class="video-card__meta">{v.runtime}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          <div class="channel-note reveal">
+            {youtube ? (
+              <>
+                <p><strong>New episodes are published here.</strong> Subscribe on YouTube.</p>
+                <a class="pill-link" href={youtube} target="_blank" rel="noopener">
+                  Watch the channel <span class="arrow">↗</span>
+                </a>
+              </>
+            ) : (
+              <>
+                <p><strong>Channel launching soon.</strong> Three episodes are in production.</p>
+                <a
+                  class="pill-link"
+                  href={`mailto:${site.email}?subject=Tell%20me%20when%20the%20channel%20launches`}
+                >
+                  Get notified <span class="arrow">↗</span>
+                </a>
+              </>
+            )}
+          </div>
+        </section>
+
+        <section class="contact" id="contact">
+          <p class="eyebrow"><span style="color:var(--amber)">05</span><span>Contact</span></p>
+          <h2 class="contact__title">
+            Let’s build something that has to <em>hold up</em>.
+          </h2>
+
+          <div class="contact__grid">
+            <a class="contact__item" href={`mailto:${site.email}`}>
+              <span class="contact__label">Email</span>
+              <span class="contact__value">{site.email}<span>↗</span></span>
+            </a>
+            <a class="contact__item" href={site.links.linkedin} target="_blank" rel="noopener">
+              <span class="contact__label">LinkedIn</span>
+              <span class="contact__value">luis-felipe-hernandez-mora<span>↗</span></span>
+            </a>
+            <a class="contact__item" href={site.links.github} target="_blank" rel="noopener">
+              <span class="contact__label">GitHub</span>
+              <span class="contact__value">luisfelipehernandezmora<span>↗</span></span>
+            </a>
+            <a
+              class="contact__item"
+              href={youtube || `mailto:${site.email}?subject=YouTube%20channel`}
+              target={youtube ? "_blank" : undefined}
+              rel={youtube ? "noopener" : undefined}
+            >
+              <span class="contact__label">YouTube</span>
+              <span class="contact__value">{youtube ? "Watch the channel" : "Launching soon"}<span>↗</span></span>
+            </a>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="shell site-footer__inner">
+      <span>© {year} {site.name}</span>
+      <span>{site.location} · Built with Astro, deployed on Vercel</span>
+      <a href="#top">Back to top ↑</a>
+    </div>
+  </footer>
+
+  <script>
+    const reveals = document.querySelectorAll<HTMLElement>(".reveal");
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (reduce) {
+      reveals.forEach((el) => el.classList.add("in"));
+    } else {
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (!entry.isIntersecting) continue;
+            entry.target.classList.add("in");
+            io.unobserve(entry.target);
+          }
+        },
+        { threshold: 0.12, rootMargin: "0px 0px -8% 0px" },
+      );
+      reveals.forEach((el) => io.observe(el));
+    }
+  </script>
+</Base>
